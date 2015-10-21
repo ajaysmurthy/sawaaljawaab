@@ -50,17 +50,24 @@ def getFeatSequence(inputFile,pulsePos):
 
 def buildStrokeModels(strokeLabels, dataBasePath):
     poolFeats = {}
+    print strokeLabels
+    print dataBasePath
     for stroke in strokeLabels:
+        print stroke
+        print dataBasePath + stroke + os.sep + '*.wav'
+        print glob.glob(dataBasePath + stroke + os.sep + '*.wav')
         filenames = glob.glob(dataBasePath + stroke + os.sep + '*.wav')
+        print filenames
         feats = {}
         for fpath in filenames:
+            print fpath
             fname = os.path.split(fpath)[1].rsplit('.')[0]
             feats[fname] = getFeatSequence(inputFile = fpath, pulsePos = None)
         poolFeats[stroke] = feats
     return poolFeats
 
 
-def genRandomComposition(pulsePos, dataPath = '../HAMRDataset/16k/'):
+def genRandomComposition(pulsePos, dataPath = '/home/ajays/HAMR2015/HAMRdataset/16k/'):
     pulsePeriod = np.median(np.diff(pulsePos))
     
     # todo
@@ -74,7 +81,7 @@ def getPulsePosFromAnn(inputFile):
             pulsePos = np.append(pulsePos,float(row[0]))
     return pulsePos
 
-def getJawaab(ipFile = '../HAMRdataset/testInputs/testInput_1.wav', ipulsePos = getPulsePosFromAnn('../HAMRdataset/testInputs/testInput_1.csv'), strokeModels = None, oFile = './tablaOutput.wav'):
+def getJawaab(ipFile = '/home/ajays/HAMR2015/HAMRdataset/testInputs/testInput_1.wav', ipulsePos = getPulsePosFromAnn('/home/ajays/HAMR2015/HAMRdataset/testInputs/testInput_1.csv'), strokeModels = None, oFile = './tablaOutput.wav'):
     # If poolFeats are not built, give an error!
     if strokeModels == None:
         print "Train the models first. Returning a random composition"
@@ -87,8 +94,7 @@ def getJawaab(ipFile = '../HAMRdataset/testInputs/testInput_1.wav', ipulsePos = 
         
     return oFile, opulsePos
    
-def testModule(dataPath = '../HAMRDataset/16k/', inputFile = '../HAMRdataset/testInputs/testInput_1.wav', pulsePos = getPulsePosFromAnn('../HAMRdataset/testInputs/testInput_1.csv')):
-    # todo
+def testModule(dataPath = '/home/ajays/HAMR2015/HAMRdataset/16k/', inputFile = '/home/ajays/HAMR2015/HAMRdataset/testInputs/testInput_1.wav', pulsePos = getPulsePosFromAnn('/home/ajays/HAMR2015/HAMRdataset/testInputs/testInput_1.csv')):
     # Train
     print "Building stroke models..."
     poolFeats = buildStrokeModels(strokeLabels, dataBasePath = dataPath)
@@ -96,7 +102,7 @@ def testModule(dataPath = '../HAMRDataset/16k/', inputFile = '../HAMRdataset/tes
     outFile = 'outTabla.wav'
     print "Generating output file..."
     outFile, opulsePos = getJawaab(ipFile = inputFile, ipulsePos = pulsePos, strokeModels = poolFeats, oFile = outFile)
-    return outFile, opulsePos
+    return outFile, opulsePos, poolFeats
 
 if __name__ == "__main__":
     outFile, opulsePos = testModule()
