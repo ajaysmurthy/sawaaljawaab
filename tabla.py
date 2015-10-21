@@ -6,6 +6,8 @@ import essentia.standard as ess
 import numpy as np
 import pickle
 import glob
+import utilFunctions as UF
+import scipy.spatial.distance as DS
 
 import parameters as params
 import csv
@@ -22,6 +24,7 @@ def getFeatSequence(inputFile,pulsePos):
     audio = ess.MonoLoader(filename = inputFile, sampleRate = params.Fs)()
     frameCounter = 0
     pool = es.Pool()
+    pool.add('samples',audio)
     for frame in ess.FrameGenerator(audio, frameSize = params.frmSize, hopSize = params.hop):
         ts = params.hop/params.Fs*frameCounter + params.frmSize/float(2*params.Fs)
         zpFrame = np.hstack((frame,zz))
@@ -50,28 +53,92 @@ def getFeatSequence(inputFile,pulsePos):
 
 def buildStrokeModels(strokeLabels, dataBasePath):
     poolFeats = {}
-    print strokeLabels
-    print dataBasePath
+    poolFeats = []
     for stroke in strokeLabels:
         print stroke
-        print dataBasePath + stroke + os.sep + '*.wav'
-        print glob.glob(dataBasePath + stroke + os.sep + '*.wav')
         filenames = glob.glob(dataBasePath + stroke + os.sep + '*.wav')
-        print filenames
-        feats = {}
         for fpath in filenames:
-            print fpath
             fname = os.path.split(fpath)[1].rsplit('.')[0]
-            feats[fname] = getFeatSequence(inputFile = fpath, pulsePos = None)
-        poolFeats[stroke] = feats
+            feat = {'strokeId': [stroke + os.sep + fname], 'feat': getFeatSequence(inputFile = fpath, pulsePos = None)}
+            poolFeats.append(feat) 
     return poolFeats
 
+def genAudioFromStrokeSeq(strokeModels,strokeSeq,timeStamps):
+    # Generates a numpy array sequence of values from fnames at the given times
+    tail = np.max(np.diff(timeStamps))
+    audio = np.zeros(int(np.round((timeStamps[-1] + tail)*params.Fs)))
+    print len(audio)
+    tsSamp = np.round(timeStamps*params.Fs)
+    print tsSamp
+    for k in range(len(strokeSeq)):
+        strokeAudio = strokeModels[int(strokeSeq[k])]['feat']['samples'][0]        
+        lenAudio = len(strokeAudio)
+        print tsSamp[k], lenAudio
+        audio[tsSamp[k]:tsSamp[k]+lenAudio] = audio[tsSamp[k]:tsSamp[k]+lenAudio] + strokeAudio
+    # The last sample
+    return audio[:tsSamp[-1]+lenAudio]
 
-def genRandomComposition(pulsePos, dataPath = '/home/ajays/HAMR2015/HAMRdataset/16k/'):
-    pulsePeriod = np.median(np.diff(pulsePos))
-    
-    # todo
-    return None
+def genRandomComposition(pulsePeriod, pieceDur = 20.0, strokeModels = None):
+    if strokeModels == None:
+        strokeSeq = None
+        ts = None 
+        opulsePos = None
+    else:
+        # First scale by the speedup factor
+        pulsePeriod = pulsePeriod/params.speedUpFactor
+        ppSynth = pulsePeriod/2
+        N = len(strokeModels)
+        Ns = np.ceil(pieceDur/ppSynth)*2
+        ind = np.random.permutation(N)
+        ind = ind[:Ns]
+        ts = np.array([])
+        strokeSeq = np.array([],dtype=int)
+        tscurr = 0.0
+        for p in xrange(len(ind)):
+            ts = np.append(ts,tscurr)
+            strokeSeq = np.append(strokeSeq,ind[p])
+            if (np.random.rand() > 0.8):
+                tscurr = tscurr + ppSynth*2
+            else:
+                tscurr = tscurr + ppSynth
+            if tscurr > pieceDur:
+                break
+    opulsePos = np.arange(0,pieceDur,pulsePeriod)
+    return strokeSeq, ts, opulsePos
+
+def getInvCovarianceMatrix(poolFeats):
+    dataMat = np.zeros((len(params.selectInd),len(poolFeats)))
+    # dataMat = np.array([])
+    for k in range(len(poolFeats)):
+        dataMat[:,k] = np.array(poolFeats[k]['feat']['pmfcc'][0][params.selectInd])
+    invC = np.linalg.inv(np.cov(dataMat))
+    return invC
+
+def genSimilarComposition(pulsePeriod, pieceDur, strokeModels = None, iAudioFile = None, iPos = None, invC = None):
+    if strokeModels == None:
+        strokeSeq = None
+        ts = None 
+        opulsePos = None
+    else:
+        testFeatFull = getFeatSequence(iAudioFile,iPos)
+        testFeat = testFeatFull['pmfcc']
+        print testFeat.shape
+        Npulse = testFeat.shape[0]
+        Ndata = len(strokeModels)
+        strokeSeq = np.array([])
+        ts = np.array([])
+        tscurr = 0.0
+        opulsePos = np.arange(0,pieceDur,pulsePeriod)
+        for k in range(Npulse):
+            ftIn = testFeat[k,params.selectInd]
+            distVal = 1e6*np.ones(Ndata)
+            ts = np.append(ts,tscurr)
+            tscurr = tscurr + pulsePeriod
+            for p in range(Ndata):
+                ftOut = strokeModels[p]['feat']['pmfcc'][0][params.selectInd]
+                distVal[p] = DS.mahalanobis(ftIn,ftOut,invC)
+            strokeSeq = np.append(strokeSeq,np.argmin(distVal))
+    return strokeSeq, ts, opulsePos
 
 def getPulsePosFromAnn(inputFile):
     pulsePos = np.array([])
@@ -81,28 +148,42 @@ def getPulsePosFromAnn(inputFile):
             pulsePos = np.append(pulsePos,float(row[0]))
     return pulsePos
 
-def getJawaab(ipFile = '/home/ajays/HAMR2015/HAMRdataset/testInputs/testInput_1.wav', ipulsePos = getPulsePosFromAnn('/home/ajays/HAMR2015/HAMRdataset/testInputs/testInput_1.csv'), strokeModels = None, oFile = './tablaOutput.wav'):
+def getJawaab(ipFile = '../HAMRdataset/testInputs/testInput_1.wav', ipulsePos = getPulsePosFromAnn('../HAMRdataset/testInputs/testInput_1.csv'), strokeModels = None, oFile = './tablaOutput.wav', randomFlag = 1):
     # If poolFeats are not built, give an error!
     if strokeModels == None:
-        print "Train the models first. Returning a random composition"
-        opulsePos = genRandomComposition(ipulsePos)
+        print "Train models first before calling getJawaab() ..."
+        opulsePos = None
+        strokeSeq = None
+        oFile = None
+        ts = None
     else:
+        print "Getting jawaab..."
         pulsePeriod = np.median(np.diff(ipulsePos))
-        
-        opulsePos = ipulsePos
-        print 60/pulsePeriod
-        
-    return oFile, opulsePos
+        print pulsePeriod
+        fss, audioIn = UF.wavread(ipFile)
+        if randomFlag == 1:
+            strokeSeq, tStamps, opulsePos = genRandomComposition(pulsePeriod, pieceDur = len(audioIn)/params.Fs, strokeModels = strokeModels)
+        else:
+            invCmat = getInvCovarianceMatrix(strokeModels)
+            strokeSeq, tStamps, opulsePos = genSimilarComposition(pulsePeriod, pieceDur = len(audioIn)/params.Fs, strokeModels = strokeModels, iAudioFile = ipFile, iPos = ipulsePos,invC = invCmat)
+        print strokeSeq
+        print tStamps
+        print opulsePos
+        if oFile != None:
+            audio = genAudioFromStrokeSeq(strokeModels,strokeSeq,tStamps)
+            audio = audio/(np.max(audio) + 0.01)
+            UF.wavwrite(audio, params.Fs, oFile)
+    return opulsePos, strokeSeq, tStamps, oFile
    
-def testModule(dataPath = '/home/ajays/HAMR2015/HAMRdataset/16k/', inputFile = '/home/ajays/HAMR2015/HAMRdataset/testInputs/testInput_1.wav', pulsePos = getPulsePosFromAnn('/home/ajays/HAMR2015/HAMRdataset/testInputs/testInput_1.csv')):
+def testModule(dataPath = '../HAMRdataset/16k/', inputFile = '../HAMRdataset/testInputs/testInput_1.wav', pulsePos = getPulsePosFromAnn('../HAMRdataset/testInputs/testInput_1.csv')):
     # Train
     print "Building stroke models..."
     poolFeats = buildStrokeModels(strokeLabels, dataBasePath = dataPath)
     # Test 
     outFile = 'outTabla.wav'
     print "Generating output file..."
-    outFile, opulsePos = getJawaab(ipFile = inputFile, ipulsePos = pulsePos, strokeModels = poolFeats, oFile = outFile)
-    return outFile, opulsePos, poolFeats
+    opulsePos, strokeSeq, ts, outFile = getJawaab(ipFile = inputFile, ipulsePos = pulsePos, strokeModels = poolFeats, oFile =outFile, randomFlag = 0)
+    return poolFeats, opulsePos, strokeSeq, ts, outFile
 
 if __name__ == "__main__":
     outFile, opulsePos = testModule()

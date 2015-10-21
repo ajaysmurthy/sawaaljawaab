@@ -7,3 +7,5 @@ hop = int(np.round(10.0e-3*Fs))
 frmSize = int(np.round(20.0e-3*Fs))
 Nfft = int(np.power(2, np.ceil(np.log2(frmSize))))
 zeropadLen = Nfft - frmSize
+speedUpFactor = 2
+selectInd = np.arange(1,13)
