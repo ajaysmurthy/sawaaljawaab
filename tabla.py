@@ -182,7 +182,7 @@ def testModule(dataPath = '../HAMRdataset/16k/', inputFile = '../HAMRdataset/tes
     # Test 
     outFile = 'outTabla.wav'
     print "Generating output file..."
-    opulsePos, strokeSeq, ts, outFile = getJawaab(ipFile = inputFile, ipulsePos = pulsePos, strokeModels = poolFeats, oFile =outFile, randomFlag = 0)
+    opulsePos, strokeSeq, ts, outFile = getJawaab(ipFile = inputFile, ipulsePos = pulsePos, strokeModels = poolFeats, oFile =outFile, randomFlag = 1)
     return poolFeats, opulsePos, strokeSeq, ts, outFile
 
 if __name__ == "__main__":
