@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html ng-app="hamrSJ">
+	<head>
+	<title>Sawaal Jawaab</title>
+		<link rel="stylesheet" type="text/css" href="thirdparty/css/bootstrap.min.css">
+		<script type="text/javascript" src="thirdparty/src/angular.min.js"></script>
+		<script type="text/javascript" src="bower_components/recorderjs/recorder.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	</head>
+
+	<body onload="onBlinker()" ng-controller="SJController as sj">
+		<p>
+			This is {{sj.appName}}!
+		</p>
+		<div ng-controller="RecordController as rec">
+			<button ng-mousedown="rec.startRecording()" ng-mouseup="rec.stopRecording()" ng-class="{'btn-danger': rec.isRecording(), btn: true}">
+				Press for Recording!
+			</button>
+		</div> <br>
+		<div ng-controller="TempoController as tempo">
+			<label for="tempoControl">Tempo:</label>
+			<input type="range" id="tempoControl" min="60" max="150" value="100" onchange="onTempoChange()">
+			<span id="tempoView"></span> <br>
+			<div id="blinker" heigth="10px" width="10px"></div>
+		</div>
+		<!-- Loading the scripts -->
+		<script type="text/javascript" src="app.js"></script>
+		<script type="text/javascript" src="src/utils.js"></script>
+	</body>
+
+</html>
