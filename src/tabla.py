@@ -19,6 +19,7 @@ zz = np.zeros((params.zeropadLen,), dtype = 'float32')
 genmfcc = ess.MFCC(highFrequencyBound = 7000.0, inputSize = params.Nfft/2+1, sampleRate = params.Fs)
 
 strokeLabels = ['dha', 'dhen', 'dhi', 'dun', 'ge', 'kat', 'ke', 'na', 'ne', 're', 'tak', 'te', 'tit', 'tun']
+dataPath = '../dataset/16k/'
 
 def getFeatSequence(inputFile,pulsePos):
     audio = ess.MonoLoader(filename = inputFile, sampleRate = params.Fs)()
@@ -148,7 +149,7 @@ def getPulsePosFromAnn(inputFile):
             pulsePos = np.append(pulsePos,float(row[0]))
     return pulsePos
 
-def getJawaab(ipFile = './dataset/testInputs/testInput_1.wav', ipulsePos = getPulsePosFromAnn('./dataset/testInputs/testInput_1.csv'), strokeModels = None, oFile = './tablaOutput.wav', randomFlag = 1):
+def getJawaab(ipFile = '../dataset/testInputs/testInput_1.wav', ipulsePos = getPulsePosFromAnn('../dataset/testInputs/testInput_1.csv'), strokeModels = None, oFile = './tablaOutput.wav', randomFlag = 1):
     # If poolFeats are not built, give an error!
     if strokeModels == None:
         print "Train models first before calling getJawaab() ..."
@@ -174,7 +175,44 @@ def getJawaab(ipFile = './dataset/testInputs/testInput_1.wav', ipulsePos = getPu
             audio = audio/(np.max(audio) + 0.01)
             UF.wavwrite(audio, params.Fs, oFile)
     return opulsePos, strokeSeq, tStamps, oFile
-   
+
+def InitSystem():
+    poolFeats = buildStrokeModels(strokeLabels, dataPath)
+
+strokeModelsG = buildStrokeModels(strokeLabels, dataPath)
+
+def getJawaabLive(ipAudio, ipulsePer, strokeModels = strokeModelsG):
+    
+#def getJawaabLive(ipAudio = './dataset/testInputs/testInput_1.wav', ipulsePos = getPulsePosFromAnn('./dataset/testInputs/testInput_1.csv'), strokeModels = None, oFile = './tablaOutput.wav', randomFlag = 1):
+
+    # If poolFeats are not built, give an error!
+    if strokeModels == None:
+        print "Train models first before calling getJawaab() ..."
+        strokeModels = InitSystem()
+    else:
+        print "Getting jawaab..."
+        pulsePeriod = ipulsePer
+        print pulsePeriod
+        audioIn = ipAudio
+        fss = params.Fs
+        invCmat = getInvCovarianceMatrix(strokeModels)
+        strokeSeq, strokeTime, strokeAmp, opulsePer = genSimilarComposition(pulsePeriod, pieceDur = len(audioIn)/params.Fs, strokeModels = strokeModels, iAudioFile = ipFile, iPos = ipulsePos,invC = invCmat)
+    return strokeSeq, strokeTime, strokeAmp, opulsePer
+
+def testModuleLive(inputFile = './dataset/testInputs/testInput_1.wav', pulsePos = getPulsePosFromAnn('./dataset/testInputs/testInput_1.csv')):
+    # Train
+    
+    # Test
+    ipulsePer = np.median(np.diff(ipulsePos))
+    print pulsePeriod
+    fss, audioIn = UF.wavread(ipFile)
+    outFile = 'outTabla.wav'
+    print "Generating output file..."
+    # opulsePos, strokeSeq, ts, outFile = getJawaab(ipFile = inputFile, ipulsePos = pulsePos, strokeModels = poolFeats, oFile =outFile, randomFlag = 1)
+    # return poolFeats, opulsePos, strokeSeq, ts, outFile    
+    opulsePos, strokeSeq, ts, outFile = getJawaabLive(ipAudio, ipulsePer):
+    return strokeSeq, strokeTime, strokeAmp, opulsePer
+
 def testModule(dataPath = './dataset/16k/', inputFile = './dataset/testInputs/testInput_1.wav', pulsePos = getPulsePosFromAnn('./dataset/testInputs/testInput_1.csv')):
     # Train
     print "Building stroke models..."
@@ -184,8 +222,9 @@ def testModule(dataPath = './dataset/16k/', inputFile = './dataset/testInputs/te
     print "Generating output file..."
     opulsePos, strokeSeq, ts, outFile = getJawaab(ipFile = inputFile, ipulsePos = pulsePos, strokeModels = poolFeats, oFile =outFile, randomFlag = 1)
     return poolFeats, opulsePos, strokeSeq, ts, outFile
-
+    
 if __name__ == "__main__":
-    outFile, opulsePos = testModule()
-    print "Stored output file to %s" %outFile
+    print "Import as a module..."
+     = testModuleLive()
+    # print "Stored output file to %s" %outFile
     
