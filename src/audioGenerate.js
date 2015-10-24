@@ -32,14 +32,14 @@ getSound.onreadystatechange = function() {
 }
 
 //fetch tala information
-var getTala = new XMLHttpRequest();
-getTala.open("GET", "http://127.0.0.1:5000/get_tala_info", true);
-getTala.send();
-getTala.onreadystatechange = function() {
-    if (getTala.readyState == 4 && getTala.status == 200) {
-        tala_info = JSON.parse(getTala.responseText);
-    }
-}
+// var getTala = new XMLHttpRequest();
+// getTala.open("GET", "http://127.0.0.1:5000/get_tala_info", true);
+// getTala.send();
+// getTala.onreadystatechange = function() {
+//     if (getTala.readyState == 4 && getTala.status == 200) {
+//         tala_info = JSON.parse(getTala.responseText);
+//     }
+// }
 
 
 function buildTheka(){
@@ -67,7 +67,6 @@ function playTheka(inp){
     playSound = audio_context.createBufferSource();
     playSound.buffer = audioBuffer;
     playSound.connect(audio_context.destination);
-    playSound.loop = true;
     playSound.start(0);  
     isPlaying = true;
 };

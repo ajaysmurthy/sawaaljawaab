@@ -56,11 +56,27 @@
 
 		  // stop Recorder.js
 		  rec.stop();
+                
 
 		  // export it to WAV
 		  rec.exportWAV(function(e){
 		    rec.clear();
-		    Recorder.forceDownload(e, "filename.wav");
+                    
+                    var fd = new FormData();
+                    
+                    fd.append('data', e);
+                    $.ajax({
+                        type: "POST",
+                        url: "http://127.0.0.1:5000/upload_audio",
+                        data: fd,
+                        processData: false,
+                        contentType: false
+                    }).done(function(data) {
+                        tala_info = data;
+                        console.log(tala_info);
+                    });
+                    //console.log(e.slice(0));
+		    //Recorder.forceDownload(e, "filename.wav");
 		  });
 		};
 

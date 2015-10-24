@@ -16,10 +16,10 @@ rms=ess.RMS()
 window = ess.Windowing(type = "hamming")
 spec = ess.Spectrum(size=params.Nfft)
 zz = np.zeros((params.zeropadLen,), dtype = 'float32')
-genmfcc = ess.MFCC(highFrequencyBound = 7000.0, inputSize = params.Nfft/2+1, sampleRate = params.Fs)
+genmfcc = ess.MFCC(highFrequencyBound = 22000.0, inputSize = params.Nfft/2+1, sampleRate = params.Fs)
 
 strokeLabels = ['dha', 'dhen', 'dhi', 'dun', 'ge', 'kat', 'ke', 'na', 'ne', 're', 'tak', 'te', 'tit', 'tun']
-dataPath = '../dataset/16k/'
+dataPath = '../dataset/44k/'
 
 def getFeatSequence(inputFile,pulsePos):
     if type(inputFile) == str:
@@ -132,7 +132,7 @@ def genSimilarComposition(pulsePeriod, pieceDur, iAudio, strokeModels = strokeMo
                 ftOut = strokeModels[p]['feat']['pmfcc'][0][params.selectInd]
                 distVal[p] = DS.mahalanobis(ftIn,ftOut,invC)
             strokeSeq.append(strokeModels[np.argmin(distVal)]['strokeId'][0])
-    return strokeSeq, strokeTime, strokeAmp, np.median(opulsePer)
+    return strokeSeq, strokeTime, strokeAmp, np.median(np.diff(opulsePos))
 
 def getJawaabLive(ipAudio, ipulsePer, strokeModels = strokeModelsG):
     # If poolFeats are not built, give an error!
@@ -148,7 +148,7 @@ def getJawaabLive(ipAudio, ipulsePer, strokeModels = strokeModelsG):
         strokeSeq, strokeTime, strokeAmp, opulsePer = genSimilarComposition(pulsePeriod, pieceDur = len(audioIn)/params.Fs, iAudio = audioIn, strokeModels = strokeModels, invC = invCmat)
     return strokeSeq, strokeTime, strokeAmp, opulsePer
 
-def testModuleLive(inputFile = '../dataset/testInputs/testInput_1.wav', pulsePos = getPulsePosFromAnn('../dataset/testInputs/testInput_1.csv')):    
+def testModuleLive(inputFile = '../dataset/testInputs/testInput_3.wav', pulsePos = getPulsePosFromAnn('../dataset/testInputs/testInput_3.csv')):    
     ipulsePer = np.median(np.diff(pulsePos))
     print ipulsePer
     fss, ipAudio = UF.wavread(inputFile)

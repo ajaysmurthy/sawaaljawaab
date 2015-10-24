@@ -3,10 +3,16 @@ from flask import Flask, request, jsonify, current_app
 import requests
 from functools import wraps
 import sys
-import os.path
+import os
 import json
 from flask.ext.cors import CORS
 from scipy.io.wavfile import read as wavread
+import inspect
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../src'))
+import tablaAnalysis as anal
+
+PULSEP = 0.5
 
 app = Flask(__name__)
 CORS(app)
@@ -58,6 +64,18 @@ def get_tala_info():
     TalaInfoFULL = json.load(open('../dataset/exampleOutput.json', 'r'))
     return jsonify(**TalaInfoFULL)
 
+@app.route('/set_tempo', methods=['GET', 'POST'])
+@support_jsonp
+def set_tempo():
+    """
+    """
+    global PULSEP
+    if request.method == 'POST':
+        PULSEP =  request.get_json()['tempo']
+    #tempo = float(request.args.get('tempo'))
+    return jsonify(**{'status': True, 'tempo': PULSEP})
+
+
 
 @app.route('/upload_audio', methods=['GET', 'POST'])
 @support_jsonp
@@ -67,9 +85,12 @@ def upload_audio():
     you have to see how to send json object, we can parse that. We might need that for passing audio arrays
     """
     if request.method == 'POST':
-        data = request.args.get('audio')
-        print data
-    return "Audio registered"
+        blob = request.files['data']
+        blob.save('temp.wav')
+        audio = anal.ess.MonoLoader(filename = 'temp.wav')()
+        strokeSeq, strokeTime, strokeAmp, opulsePer = anal.getJawaabLive(audio, PULSEP)
+        output = {'strokeTime': strokeTime.tolist(), 'strokeAmp': strokeAmp.tolist(), 'strokeList': strokeSeq}
+    return jsonify(**output)
 
 
 
