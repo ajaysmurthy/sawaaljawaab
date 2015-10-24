@@ -9,6 +9,11 @@
 	</head>
 
 	<body onload="onBlinker()" ng-controller="SJController as sj">
+		
+		<button onclick="buildTheka()">Build Theka</button>
+  		<button onclick="playTheka()">Play Theka</button>
+		<button onclick="stopPlaying()">Stop Playing</button>
+
 		<p>
 			This is {{sj.appName}}!
 		</p>
@@ -26,6 +31,7 @@
 		<!-- Loading the scripts -->
 		<script type="text/javascript" src="app.js"></script>
 		<script type="text/javascript" src="src/utils.js"></script>
+		<script type="text/javascript" src="src/audioGenerate.js"></script>
 	</body>
 
 </html>
