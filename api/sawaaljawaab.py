@@ -13,6 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sr
 import tablaAnalysis as anal
 
 PULSEP = 0.5
+TAAL_ID = "teen"   # 1 for teental, 2 for ektaal, 3 for rupak taal, 4 for jhap taal
 
 app = Flask(__name__)
 CORS(app)
@@ -22,7 +23,7 @@ TablaStrokesPath = json.load(open('../dataset/filelist.json', 'r'))
 
 @app.route('/')
 def index():
-    return "raga phrase demo"
+    return "tabla demo"
 
 def support_jsonp(f):
     """Wraps JSONified output for JSONP"""
@@ -36,8 +37,6 @@ def support_jsonp(f):
             return f(*args, **kwargs)
 
     return decorated_function    
-
-
 
 @app.route('/get_tabla_sounds', methods=['GET', 'POST'])
 @support_jsonp
@@ -75,7 +74,15 @@ def set_tempo():
     #tempo = float(request.args.get('tempo'))
     return jsonify(**{'status': True, 'tempo': PULSEP})
 
-
+@app.route('/set_taal', methods=['GET', 'POST'])
+@support_jsonp
+def set_taal():
+    """
+    """
+    global TAAL_ID
+    if request.method == 'POST':
+        TAAL_ID =  request.get_json()['taal']
+    return jsonify(**{'status': True, 'taal': TAAL_ID})
 
 @app.route('/upload_audio', methods=['GET', 'POST'])
 @support_jsonp
@@ -88,11 +95,9 @@ def upload_audio():
         blob = request.files['data']
         blob.save('temp.wav')
         audio = anal.ess.MonoLoader(filename = 'temp.wav')()
-        strokeSeq, strokeTime, strokeAmp, opulsePer = anal.getJawaabLive(audio, PULSEP)
+        strokeSeq, strokeTime, strokeAmp, opulsePer = anal.getJawaabLive(audio, PULSEP, iTaal = TAAL_ID)
         output = {'strokeTime': strokeTime.tolist(), 'strokeAmp': strokeAmp.tolist(), 'strokeList': strokeSeq}
     return jsonify(**output)
-
-
 
 
 if __name__ == '__main__':
