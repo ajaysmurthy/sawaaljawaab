@@ -148,7 +148,7 @@ def getPulsePosFromAnn(inputFile):
             pulsePos = np.append(pulsePos,float(row[0]))
     return pulsePos
 
-def getJawaab(ipFile = '../HAMRdataset/testInputs/testInput_1.wav', ipulsePos = getPulsePosFromAnn('../HAMRdataset/testInputs/testInput_1.csv'), strokeModels = None, oFile = './tablaOutput.wav', randomFlag = 1):
+def getJawaab(ipFile = './dataset/testInputs/testInput_1.wav', ipulsePos = getPulsePosFromAnn('./dataset/testInputs/testInput_1.csv'), strokeModels = None, oFile = './tablaOutput.wav', randomFlag = 1):
     # If poolFeats are not built, give an error!
     if strokeModels == None:
         print "Train models first before calling getJawaab() ..."
@@ -175,7 +175,7 @@ def getJawaab(ipFile = '../HAMRdataset/testInputs/testInput_1.wav', ipulsePos = 
             UF.wavwrite(audio, params.Fs, oFile)
     return opulsePos, strokeSeq, tStamps, oFile
    
-def testModule(dataPath = '../HAMRdataset/16k/', inputFile = '../HAMRdataset/testInputs/testInput_1.wav', pulsePos = getPulsePosFromAnn('../HAMRdataset/testInputs/testInput_1.csv')):
+def testModule(dataPath = './dataset/16k/', inputFile = './dataset/testInputs/testInput_1.wav', pulsePos = getPulsePosFromAnn('./dataset/testInputs/testInput_1.csv')):
     # Train
     print "Building stroke models..."
     poolFeats = buildStrokeModels(strokeLabels, dataBasePath = dataPath)
