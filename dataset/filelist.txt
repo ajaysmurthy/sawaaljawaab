@@ -1,3 +1,4 @@
+a = {
 'dha/dha_07': '../dataset/16k/'dha/dha_07',
 'dha/dha_06': '../dataset/16k/'dha/dha_06',
 'dha/dha_04': '../dataset/16k/'dha/dha_04',
