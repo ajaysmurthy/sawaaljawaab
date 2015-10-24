@@ -49,13 +49,12 @@ function buildTheka(){
     for (var channel = 0 ; channel < nChannels; channel ++){
         var nowBuffering = audioBuffer.getChannelData(channel);
     
-        var bar_start =0;
         var len_stroke;
-        for (var bol_ind in tala_info.){
-            start = Math.floor(bar_start + barLength*tala_info[theka]['normal']['durratio'][bol_ind]*sampleRate);
-            len_stroke = tabla_strokes[tala_info[theka]['normal']['bols'][bol_ind]].length
+        for (var bol_ind in tala_info.strokeTime){
+            start = Math.floor(tala_info.strokeTime[bol_ind]*sampleRate);
+            len_stroke = tabla_strokes[tala_info.strokeList[bol_ind]].length
             for (var ii = 0; ii < len_stroke; ii++){
-                nowBuffering[start + ii] = nowBuffering[start + ii] + tabla_strokes[tala_info[theka]['normal']['bols'][bol_ind]][ii]/32767.0;
+                nowBuffering[start + ii] = nowBuffering[start + ii] + tala_info.strokeAmp[bol_ind]*tabla_strokes[tala_info.strokeList[bol_ind]][ii]/32767.0;
             }
         }
     }
@@ -93,6 +92,7 @@ function init() {
       alert('No web audio support in this browser!');
     }
     sampleRate = audio_context.sampleRate;
+    onBlinker();
     
 };
 
