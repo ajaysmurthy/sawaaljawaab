@@ -6,7 +6,7 @@
 		this.appName = "SawaalJawaab";
 	});
 
-	app.controller("RecordController", ['$timeout', function($timeout) {
+	app.controller("RecordController", function($scope, $timeout) {
 		this.recording = false;
 
 		////////////////////////////////////////////////////////////////////////////
@@ -76,6 +76,7 @@
                         contentType: false
                     }).done(function(data) {
                         tala_info = data;
+                        playBackWithDelay();
                         console.log(tala_info);
                     });
                     //console.log(e.slice(0));
@@ -92,9 +93,10 @@
 
 		this.startRecording = function() {
 			console.log("Recording Button Clicked ....");
-                        console.log("curretn time", nextSamaTime - new Date().getTime(), new Date().getTime());
+                        console.log("current time", nextSamaTime - new Date().getTime(), new Date().getTime());
 			this.recording = true;
 			$timeout(record, nextSamaTime - new Date().getTime);
+                        //setTimeout(record, nextSamaTime - new Date().getTime);
 		};
 
 		this.stopRecording = function() {
@@ -102,7 +104,7 @@
 			this.recording = false;
 			stopRec();
 		};
-	}]);
+	});
 
 	app.controller("TempoController", function() {
 		this.tempo = 100;

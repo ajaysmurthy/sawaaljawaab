@@ -11,7 +11,11 @@ var theka = 'teental';
 var total_out_dur;
 var tala_info;
 var playSound;
-var beatPosition = {'teen': {'durratio': [0, .25, .5, .75], 'bol': ['hiClick', 'lowClick', 'lowClick', 'lowClick']}};
+var beatPosition = {'teen': {'durratio': [0, .25, .5, .75], 'bol': ['hiClick', 'lowClick', 'lowClick', 'lowClick']},
+    'ek': {'durratio': [0, .25, .5, .75], 'bol': ['hiClick', 'lowClick', 'lowClick', 'lowClick']},
+    'jhap': {'durratio': [0, 0.2, .5, .7], 'bol': ['hiClick', 'lowClick', 'lowClick', 'lowClick']},
+    'rupak': {'durratio': [0, .428, .714], 'bol': ['hiClick', 'lowClick', 'lowClick']}
+};
 var clickSounds;
 var metronome;
 var isMetronomePlaying = false;
@@ -56,6 +60,17 @@ getSound.onreadystatechange = function() {
 // }
 
 
+function playBackWithDelay() {
+    console.log("Inside playBackWithDelay");
+    buildTheka();
+    playTheka();
+    setTimeout(startPlayTheka, nextSamaTime - new Date().getTime());
+}
+
+function playThekaButton() {
+    playTheka();
+    startPlayTheka();
+}
 function buildTheka(){
     total_out_dur = tala_info.strokeTime[tala_info.strokeTime.length-1] + 2;
     var frameCount = sampleRate*total_out_dur;
@@ -73,8 +88,6 @@ function buildTheka(){
         }
     }
 }
-var beatPosition = {'teen': {'durratio': [0, .25, .5, .75], 'bol': ['hiClick', 'lowClick', 'lowClick', 'lowClick']}};
-
 
 function buildMetronometrack(){
     var frameCount = sampleRate*samaDuration;
@@ -86,12 +99,10 @@ function buildMetronometrack(){
         var barLen = samaDuration;
         for (var bol_ind in beatPosition[currTala]['bol']){
             start = Math.floor(samaDuration*beatPosition[currTala]['durratio'][bol_ind]*sampleRate);
-            console.log(bol_ind);
+            console.log(beatPosition[currTala]['durratio'][bol_ind], currTala);
             len_stroke = clickSounds[beatPosition[currTala]['bol'][bol_ind]].length
-            console.log(start, len_stroke);
             for (var ii = 0; ii < len_stroke; ii++){
-                nowBuffering[start + ii] = nowBuffering[start + ii] + clickSounds[beatPosition[currTala]['bol'][bol_ind]][ii]/32767.0;
-                
+                nowBuffering[start + ii] = nowBuffering[start + ii] + clickSounds[beatPosition[currTala]['bol'][bol_ind]][ii]/32767.0;           
             }
         }
         console.log(nowBuffering);
@@ -111,15 +122,19 @@ function playMetronomeAudio(){
 };
 
 function playTheka(){
+    console.log('Started the playback')
     if (isPlaying == true){
             stopPlaying();
     }
     playSound = audio_context.createBufferSource();
     playSound.buffer = audioBuffer;
     playSound.connect(audio_context.destination);
+};
+
+function startPlayTheka() {
     playSound.start(0);  
     isPlaying = true;
-};
+}
 
 function stopPlaying(){
     if (isPlaying == true){

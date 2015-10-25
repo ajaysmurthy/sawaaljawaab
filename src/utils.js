@@ -10,6 +10,10 @@ var beatScheduler;
 var nextSamaTime;
 
 var currTempo = Number($("#tempoControl").val());
+var imgSama = document.getElementById('samaImage');
+imgSama.style.visibility = 'hidden';
+var imgBeat = document.getElementById('beatImage');
+imgBeat.style.visibility = 'hidden';
 
 function onTempoChange() {
 	console.log($("#tempoControl").val());
@@ -23,14 +27,15 @@ function onTempoChange() {
                 }).done(function(data) {
                     console.log(data);
                 });
-                stopMetronome();
-                startMetronome();
+        $("#tempoValDisp").html($("#tempoControl").val())
+        stopMetronome();
+        startMetronome();
+                
 }
 
 
 function onTaalChange(){
-	console.log($("#taal").val());
-	currTempo = Number($("#taal").val());
+	currTala = $("#taal").val();
         $.ajax({
                     type: "POST",
                     url: "http://127.0.0.1:5000/set_taal",
@@ -40,6 +45,9 @@ function onTaalChange(){
                 }).done(function(data) {
                     console.log(data);
                 });
+                console.log($("#taal").val());
+                stopMetronome();
+                startMetronome();
 }
 
 function getPulsePeriod(){
@@ -58,15 +66,18 @@ function getBlinkOffSpeed() {
 function samaArrived(){
     nextSamaTime = new Date().getTime() + samaDuration * 1000;  
     $("#samaText").text("Sama");
-    setTimeout(function (){$("#samaText").text("");}, 300);
+    imgSama.style.visibility = 'visible';
+    setTimeout(function (){$("#samaText").text("    ");}, 300);
+    setTimeout(function (){imgSama.style.visibility = 'hidden';}, 500);
 }
 
 function beatArrived(){
-    
-    $("#samaText").text("Beat");
-    setTimeout(function (){$("#samaText").text("");}, 300);
-    
+    $("#beatText").text("Beat");
+    imgBeat.style.visibility = 'visible';
+    setTimeout(function (){$("#beatText").text("");}, 200);
+    setTimeout(function (){imgBeat.style.visibility = 'hidden';}, 200);
 }
+
 
 function startMetronome() {
         

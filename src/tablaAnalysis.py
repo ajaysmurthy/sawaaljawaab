@@ -49,7 +49,7 @@ fullTihais = {"teen_1": {"totDur": 17, "bol": ['te/te_08', 're/re_01', 'ke/ke_01
 
 thekaSlow = {"teen": {"totDur": 16, "bol": ['dha/dha_01', 'dhi/dhi_01', 'dhi/dhi_02', 'dha/dha_01', 'dha/dha_01', 'dhi/dhi_01', 'dhi/dhi_02', 'dha/dha_01', 'dha/dha_01', 'tun/tun_01', 'tun/tun_02', 'na/na_01', 'dhi/dhi_01', 'na/na_01', 'dha/dha_01', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_08', 'dha/dha_02', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_02'], "dur": np.array([1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.5, 0.25, 0.25, 0.25, 0.25]), "amp": np.array([1.0, 0.8, 0.8, 0.8, 1, 0.8, 0.8, 0.8, 0.9, 0.8, 0.8, 0.9, 1, 0.9, 0.8, 0.7, 0.7, 0.7, 0.7, 0.8, 0.7, 0.7, 0.7, 0.7]),},
              "ek": {"totDur": 12, "bol": ['dhi/dhi_01', 'dhi/dhi_02', 'na/na_01', 'kat/kat_01', 'tun/tun_01', 'na/na_01', 'dhi/dhi_02', 'na/na_01', 'dha/dha_01', 'ge/ge_01', 'ke/ke_01', 'te/te_08', 'dha/dha_01', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_08', 'dha/dha_02', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_02'], "dur": np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.5, 0.25, 0.25, 0.25, 0.25]), "amp": np.array([1.0, 0.8, 0.8, 1, 0.8, 0.8, 0.9, 0.8, 0.8, 0.8, 0.8, 0.8, 1, 0.7, 0.7, 0.7, 0.7, 1, 0.7, 0.7, 0.7, 0.7])},
-             "jhap": {"totDur": 10, "bol": ['dhi/dhi_01', 'na/na_01', 'dhi/dhi_02', 'dhi/dhi_02', 'na/na_01', 'tun/tun_01', 'na/na_01', 'dha/dha_01', 'te/te_02', 're/re_02', 'ke/ke_01', 'te/te_08', 'dha/dha_02', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_02'], "dur": np.array([1.0, 1, 1, 1, 1, 1, 1, 0.5, 0.125, 0.125, 0.125, 0.125, 0.5, 0.125, 0.125, 0.125, 0.125]), "amp": np.array([1, 0.8, 0.9, 0.9, 0.8, 1, 0.8, 0.9, 0.7, 0.7, 0.7, 0.7, 0.9, 0.7, 0.7, 0.7, 0.7])},
+             "jhap": {"totDur": 10, "bol": ['dhi/dhi_01', 'na/na_01', 'dhi/dhi_02', 'dhi/dhi_02', 'na/na_01', 'tun/tun_01', 'na/na_01', 'dha/dha_01', 'ke/ke_01', 'te/te_08', 'dha/dha_02', 'ke/ke_01', 'te/te_02'], "dur": np.array([1.0, 1, 1, 1, 1, 1, 1, 0.5, 0.25, 0.25, 0.5, 0.25, 0.25]), "amp": np.array([1, 0.8, 0.9, 0.9, 0.8, 1, 0.8, 0.9, 0.7, 0.7, 0.9, 0.7, 0.7])},
              "rupak": {"totDur": 7, "bol": ['tun/tun_01', 'tun/tun_01', 'te/te_08', 'ke/ke_01', 'dhi/dhi_01', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_08', 'dhi/dhi_02', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_08'], "dur": np.array([1.0, 1, 0.5, 0.5, 1, 0.25, 0.25, 0.25, 0.25, 1, 0.25, 0.25, 0.25, 0.25]), "amp": np.array([0.9, 0.9, 0.9, 0.9, 1, 0.7, 0.7, 0.7, 0.7, 1, 0.7, 0.7, 0.7, 0.7])},
              }
 
@@ -154,11 +154,11 @@ def genSimilarComposition(pulsePeriod, taalInfo, pieceDur, iAudio, strokeModels 
         testFeatFull = getFeatSequence(iAudio,iPos)
         feat_rms = es.array([ testFeatFull['rms'][0] ])
         onsets_rms = onsets(feat_rms, [1 ])
-        plt.plot(testFeatFull['time'], testFeatFull['rms'][0])
-        print onsets_rms, testFeatFull['pst']
-        plt.stem(testFeatFull['pst'],np.max(testFeatFull['rms'][0])*np.ones(len(testFeatFull['pst'])),'r')
-        plt.stem(onsets_rms,np.max(testFeatFull['rms'][0])*np.ones(len(onsets_rms)),'g')        
-        plt.show()
+        # plt.plot(testFeatFull['time'], testFeatFull['rms'][0])
+        # print onsets_rms, testFeatFull['pst']
+        #plt.stem(testFeatFull['pst'],np.max(testFeatFull['rms'][0])*np.ones(len(testFeatFull['pst'])),'r')
+        # plt.stem(onsets_rms,np.max(testFeatFull['rms'][0])*np.ones(len(onsets_rms)),'g')        
+        # plt.show()
         testFeat = testFeatFull['pmfcc']
         # print testFeat.shape
         Npulse = testFeat.shape[0]

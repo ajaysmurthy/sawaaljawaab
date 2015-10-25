@@ -6,38 +6,77 @@
 		<script type="text/javascript" src="thirdparty/src/angular.min.js"></script>
 		<script type="text/javascript" src="bower_components/recorderjs/recorder.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <style>
+            img {
+                max-width: 100%;
+                height: auto;
+                width: auto\9; /* ie8 */
+                }
+            div {
+            display: inline-block;
+            white-space: nowrap;
+            }
+            .img1,.img2{
+            width:50%;
+            }
+        </style>
 	</head>
 
 	<body onload="init()" ng-controller="SJController as sj">
-		
-		<button onclick="buildTheka()">Build Theka</button>
-  		<button onclick="playTheka()">Play Theka</button>
-		<button onclick="stopPlaying()">Stop Playing</button>
+		<p style="font-size:20px">
+			This is {{sj.appName}}! Choose a taal and tempo, and hold down the record button to record!
+		</p>
                 <button onclick="startMetronome()">Start Metronome</button>
 		<button onclick="stopMetronome()">Stop Metronome</button>
-		<p>
-			This is {{sj.appName}}!
-		</p>
-
+                <br></br>
 		<div ng-controller="RecordController as rec">
 			<button ng-mousedown="rec.startRecording()" ng-mouseup="rec.stopRecording()" ng-class="{'btn-danger': rec.isRecording(), btn: true}">
-				Press for Recording!
+				Click and hold to Record!
 			</button>
 		</div> <br>
+		<br></br>
 		<div ng-controller="TempoController as tempo">
 			<label for="tempoControl">Tempo:</label>
-			<input type="range" id="tempoControl" min="150" max="400" value="180" onchange="onTempoChange()">
-			<span id="tempoView"></span> <br>
-			<div id="blinker" heigth="100px" width="100px"></div>
+			<input type="range" id="tempoControl" min="150" max="250" value="180" onchange="onTempoChange()">
+			<span id="tempoView"></span> <p id="tempoValDisp"> 180</p>
+			<br>
 		</div>
+                <br></br>
+                
+                <div style="max-width: 900px">
+                
+                <div class="img1" style="height: auto; border:1px red solid">
+                <img id="samaImage" src=./images/reddot.png>
+                </div>
+        
+                <div class="img2" style="height: auto; border:1px green solid" >
+                <img id="beatImage" src=./images/greendot.png >
+                </div>
+                </div>
+                <br></br>
+                <b><p > Select Taal: </p></b>
+		<div>
 		<select id="taal" onchange="onTaalChange()">
                     <option selected value="teen">Teental (16)</option>
                     <option value="ek">Ektaal (12) </option>
                     <option value="jhap">Jhaptaal (10)</option>
                     <option value="rupak">Rupak taal (7)</option>
                 </select>
-                <p id = "samaText"></p>
-		<p id = "beatText"></p>
+                </div>
+                <br></br>
+                <button onclick="buildTheka()">Build Response</button>
+  		<button onclick="playThekaButton()">Play Response</button>
+		<button onclick="stopPlaying()">Stop Playing</button>
+                <!--
+                <div>
+                    <p style="font-size:40px" id="samaText"></p>
+                </div>
+                <br></br>
+                <div>
+                    <p style="font-size:20px" id = "beatText"></p>
+                </div>
+		-->
+		
 		<!-- Loading the scripts -->
 		<script type="text/javascript" src="app.js"></script>
 		<script type="text/javascript" src="src/utils.js"></script>
