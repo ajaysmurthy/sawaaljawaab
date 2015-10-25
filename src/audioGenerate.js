@@ -5,12 +5,16 @@ var source1;
 var nChannels = 1;
 var tabla_strokes;
 var audioBuffer;
+var audioBufferMetronome;
 var sampleRate;
 var theka = 'teental';
 var total_out_dur;
 var tala_info;
 var playSound;
-
+var beatPosition = {'teen': {'durratio': [0, .25, .5, .75], 'bol': ['hiClick', 'lowClick', 'lowClick', 'lowClick']}};
+var clickSounds;
+var metronome;
+var isMetronomePlaying = false;
 
 function setBarLength(length){
     barLength = length
@@ -20,6 +24,15 @@ function setTheka(theka_inp){
     theka = theka_inp;
 }
 
+var getClicks = new XMLHttpRequest();
+getClicks.open("GET", "http://127.0.0.1:5000/get_click_sounds", true);
+getClicks.send();
+getClicks.onreadystatechange = function() {
+    if (getClicks.readyState == 4 && getClicks.status == 200) {
+        clickSounds = JSON.parse(getClicks.responseText);
+        startMetronome();
+    }
+}
 
 // fetching dictionary of sounds
 var getSound = new XMLHttpRequest();
@@ -28,6 +41,7 @@ getSound.send();
 getSound.onreadystatechange = function() {
     if (getSound.readyState == 4 && getSound.status == 200) {
         tabla_strokes = JSON.parse(getSound.responseText);
+
     }
 }
 
@@ -59,8 +73,44 @@ function buildTheka(){
         }
     }
 }
+var beatPosition = {'teen': {'durratio': [0, .25, .5, .75], 'bol': ['hiClick', 'lowClick', 'lowClick', 'lowClick']}};
 
-function playTheka(inp){
+
+function buildMetronometrack(){
+    var frameCount = sampleRate*samaDuration;
+    audioBufferMetronome = audio_context.createBuffer(nChannels, frameCount, sampleRate);
+    for (var channel = 0 ; channel < nChannels; channel ++){
+        var nowBuffering = audioBufferMetronome.getChannelData(channel);
+    
+        var len_stroke;
+        var barLen = samaDuration;
+        for (var bol_ind in beatPosition[currTala]['bol']){
+            start = Math.floor(samaDuration*beatPosition[currTala]['durratio'][bol_ind]*sampleRate);
+            console.log(bol_ind);
+            len_stroke = clickSounds[beatPosition[currTala]['bol'][bol_ind]].length
+            console.log(start, len_stroke);
+            for (var ii = 0; ii < len_stroke; ii++){
+                nowBuffering[start + ii] = nowBuffering[start + ii] + clickSounds[beatPosition[currTala]['bol'][bol_ind]][ii]/32767.0;
+                
+            }
+        }
+        console.log(nowBuffering);
+    }
+}
+
+function playMetronomeAudio(){
+    if (isMetronomePlaying == true){
+            stopMetronome();
+    }
+    metronome = audio_context.createBufferSource();
+    metronome.buffer = audioBufferMetronome;
+    metronome.connect(audio_context.destination);
+    metronome.loop = true;
+    metronome.start(0);
+    isMetronomePlaying = true;
+};
+
+function playTheka(){
     if (isPlaying == true){
             stopPlaying();
     }
@@ -79,6 +129,14 @@ function stopPlaying(){
     
 };
 
+function stopMetronomeAudio(){
+    if (isMetronomePlaying == true){
+        metronome.stop();
+        isMetronomePlaying = false;        
+    }
+    
+};
+
 // Function that initializes the audio context
 function init() {
     try {
@@ -91,7 +149,6 @@ function init() {
       alert('No web audio support in this browser!');
     }
     sampleRate = audio_context.sampleRate;
-    onBlinker();
     
 };
 

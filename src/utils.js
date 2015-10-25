@@ -1,3 +1,14 @@
+// Global variables
+var currTala = $("#taal").val();
+var isBlinking = false;
+var beatsPT = {'teen':16, 'jhap':10, 'ek': 12, 'rupak':7};
+var beatDuration =60.0/parseFloat($("#tempoControl").val());
+var samaDuration = beatDuration*beatsPT[currTala];
+var pulsePeriod;
+var samaScheduler;
+var beatScheduler;
+var nextSamaTime;
+
 var currTempo = Number($("#tempoControl").val());
 
 function onTempoChange() {
@@ -12,9 +23,11 @@ function onTempoChange() {
                 }).done(function(data) {
                     console.log(data);
                 });
+                stopMetronome();
+                startMetronome();
 }
 
-var currTala = $("#taal").val();
+
 function onTaalChange(){
 	console.log($("#taal").val());
 	currTempo = Number($("#taal").val());
@@ -29,7 +42,12 @@ function onTaalChange(){
                 });
 }
 
+function getPulsePeriod(){
+    return 60.0/parseFloat($("#tempoControl").val());
+    
+}
 function getBlinkOnSpeed() {
+    
 	return (60 * 1000) / (currTempo);
 }
 
@@ -37,15 +55,39 @@ function getBlinkOffSpeed() {
 	return (60 * 1000) / (currTempo);
 }
 
-function onBlinker() {
+function samaArrived(){
+    nextSamaTime = new Date().getTime() + samaDuration * 1000;  
+    $("#samaText").text("Sama");
+    setTimeout(function (){$("#samaText").text("");}, 300);
+}
 
-	var $disp = $("#tempoView");
-	$disp.html("Beat");
+function beatArrived(){
+    
+    $("#samaText").text("Beat");
+    setTimeout(function (){$("#samaText").text("");}, 300);
+    
+}
 
-	var $blinker = $("#blinker");
-	$blinker.css("background-color","white");
-
-	setTimeout(offBlinker, getBlinkOnSpeed());
+function startMetronome() {
+        
+        pulsePeriod = getPulsePeriod();
+        samaDuration = pulsePeriod*beatsPT[currTala];
+        beatDuration = pulsePeriod;
+        
+        buildMetronometrack();
+        playMetronomeAudio();
+        
+        nextSamaTime = new Date().getTime() + samaDuration * 1000;
+        
+        samaScheduler = setInterval(samaArrived, samaDuration*1000);
+        beatScheduler = setInterval(beatArrived, beatDuration*1000);
+        
+}
+function stopMetronome(){
+    
+    stopMetronomeAudio();
+    clearInterval(samaScheduler);
+    clearInterval(beatScheduler);
 }
 
 function offBlinker() {

@@ -13,9 +13,12 @@
 		<button onclick="buildTheka()">Build Theka</button>
   		<button onclick="playTheka()">Play Theka</button>
 		<button onclick="stopPlaying()">Stop Playing</button>
+                <button onclick="startMetronome()">Start Metronome</button>
+		<button onclick="stopMetronome()">Stop Metronome</button>
 		<p>
 			This is {{sj.appName}}!
 		</p>
+
 		<div ng-controller="RecordController as rec">
 			<button ng-mousedown="rec.startRecording()" ng-mouseup="rec.stopRecording()" ng-class="{'btn-danger': rec.isRecording(), btn: true}">
 				Press for Recording!
@@ -23,16 +26,18 @@
 		</div> <br>
 		<div ng-controller="TempoController as tempo">
 			<label for="tempoControl">Tempo:</label>
-			<input type="range" id="tempoControl" min="150" max="250" value="180" onchange="onTempoChange()">
+			<input type="range" id="tempoControl" min="150" max="400" value="180" onchange="onTempoChange()">
 			<span id="tempoView"></span> <br>
 			<div id="blinker" heigth="100px" width="100px"></div>
 		</div>
 		<select id="taal" onchange="onTaalChange()">
-                    <option value="teen">Teental (16)</option>
+                    <option selected value="teen">Teental (16)</option>
                     <option value="ek">Ektaal (12) </option>
                     <option value="jhap">Jhaptaal (10)</option>
                     <option value="rupak">Rupak taal (7)</option>
                 </select>
+                <p id = "samaText"></p>
+		<p id = "beatText"></p>
 		<!-- Loading the scripts -->
 		<script type="text/javascript" src="app.js"></script>
 		<script type="text/javascript" src="src/utils.js"></script>

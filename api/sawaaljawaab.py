@@ -20,6 +20,8 @@ CORS(app)
 
 TablaStrokesPath = json.load(open('../dataset/filelist.json', 'r'))
 
+clickStrokes = {'hiClick': '../dataset/hiclick.wav', 'lowClick': '../dataset/loclick.wav'}
+
 
 @app.route('/')
 def index():
@@ -51,6 +53,21 @@ def get_tabla_sounds():
         fs, data = wavread(TablaStrokesPath[stroke])
         output[stroke] = data.tolist()
     return jsonify(**output)
+
+@app.route('/get_click_sounds', methods=['GET', 'POST'])
+@support_jsonp
+def get_click_sounds():
+    """
+    http://127.0.0.1:5000/get_tabla_sounds
+    simple! and you get the json data :)
+    """
+    #read a wav sound
+    output = {}
+    for stroke in clickStrokes.keys():
+        fs, data = wavread(clickStrokes[stroke])
+        output[stroke] = data.tolist()
+    return jsonify(**output)
+
 
 @app.route('/get_tala_info', methods=['GET', 'POST'])
 @support_jsonp
