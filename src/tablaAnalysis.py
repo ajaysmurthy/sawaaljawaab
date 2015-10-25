@@ -19,6 +19,7 @@ spec = ess.Spectrum(size=params.Nfft)
 zz = np.zeros((params.zeropadLen,), dtype = 'float32')
 genmfcc = ess.MFCC(highFrequencyBound = 22000.0, inputSize = params.Nfft/2+1, sampleRate = params.Fs)
 hps = ess.HighPass(cutoffFrequency = 240.0)
+onsets = ess.Onsets()
 
 strokeLabels = ['dha', 'dhen', 'dhi', 'dun', 'ge', 'kat', 'ke', 'na', 'ne', 're', 'tak', 'te', 'tit', 'tun']
 
@@ -28,9 +29,15 @@ taals = {"teen": {"nmatra": 16, "accents": np.array([4, 1, 1, 1, 3, 1, 1, 1, 2, 
          "rupak": {"nmatra": 7, "accents": np.array([2, 1, 1, 3, 1, 3, 1])}
          }
 
-# Need two basic thekas per taalInfo
 
-
+rolls = [{"bol": ['dha/dha_02', 'te/te_05', 're/re_04', 'dha/dha_02'], "dur": np.array([1.0, 1.0, 1, 1]), "amp": np.array([1.0, 1.0, 1.0, 1.0])},
+         {"bol": ['te/te_02', 're/re_05', 'ke/ke_04', 'te/te_02'], "dur": np.array([1.0, 1.0, 1, 1]), "amp": np.array([1.0, 1.0, 1.0, 1.0])},
+         {"bol": ['ge/ge_02', 'ge/ge_05', 'te/te_04', 'te/te_02'], "dur": np.array([1.0, 1.0, 1, 1]), "amp": np.array([1.0, 1.0, 1.0, 1.0])},
+         {"bol": ['ge/ge_02', 'ge/ge_05', 'dhi/dhi_04', 'na/na_02'], "dur": np.array([1.0, 1.0, 1, 1]), "amp": np.array([1.0, 1.0, 1.0, 1.0])},
+         {"bol": ['dha/dha_02', 'dha/dha_02', 'te/te_05', 'te/te_06'], "dur": np.array([1.0, 1.0, 1, 1]), "amp": np.array([1.0, 1.0, 1.0, 1.0])},
+         {"bol": ['dha/dha_02', 'dha/dha_02', 'dhi/dhi_05', 'na/na_06'], "dur": np.array([1.0, 1.0, 1, 1]), "amp": np.array([1.0, 1.0, 1.0, 1.0])},
+         {"bol": ['na/na_02', 'ge/ge_05', 'te/te_04', 'te/te_02'], "dur": np.array([1.0, 1.0, 1, 1]), "amp": np.array([1.0, 1.0, 1.0, 1.0])}
+         ]
 
 # Need different tihais for different letters remaining, start from say,  matras
 
@@ -65,6 +72,9 @@ def getFeatSequence(inputFile,pulsePos):
         pool.add('mfcc',mfccSeq)
         pool.add('time',ts)
         frameCounter += 1
+    prmsVal = pool['rms']/np.max(pool['rms'])
+    pool.remove('rms')
+    pool.add('rms', prmsVal)
     if pulsePos != None:
         pulsePos = np.append(pulsePos,len(audio)/params.Fs)
         for tp in xrange(len(pulsePos)-1):
@@ -74,12 +84,12 @@ def getFeatSequence(inputFile,pulsePos):
             temp2 = np.where(pool['time'] < pulsePos[tp+1])[0]
             binIndices = np.intersect1d(temp1, temp2)
             pool.add('pmfcc', np.mean(pool['mfcc'][binIndices,:], axis = 0))
-            pool.add('prms', np.mean(pool['rms'][binIndices]))
+            pool.add('prms', np.mean(pool['rms'][0][binIndices]))
     else:
         pool.add('pst', 0.0)
         pool.add('pet', len(audio)/params.Fs)
         pool.add('pmfcc', np.mean(pool['mfcc'], axis = 0))
-        pool.add('prms', np.mean(pool['rms'], axis = 0))
+        pool.add('prms', np.mean(pool['rms'][0], axis = 0))
     return pool
 
 def buildStrokeModels(strokeLabels, dataBasePath):
@@ -142,6 +152,13 @@ def genSimilarComposition(pulsePeriod, taalInfo, pieceDur, iAudio, strokeModels 
     else:
         iPos = np.arange(0.0,pieceDur,pulsePeriod)
         testFeatFull = getFeatSequence(iAudio,iPos)
+        feat_rms = es.array([ testFeatFull['rms'][0] ])
+        onsets_rms = onsets(feat_rms, [1 ])
+        plt.plot(testFeatFull['time'], testFeatFull['rms'][0])
+        print onsets_rms, testFeatFull['pst']
+        plt.stem(testFeatFull['pst'],np.max(testFeatFull['rms'][0])*np.ones(len(testFeatFull['pst'])),'r')
+        plt.stem(onsets_rms,np.max(testFeatFull['rms'][0])*np.ones(len(onsets_rms)),'g')        
+        plt.show()
         testFeat = testFeatFull['pmfcc']
         # print testFeat.shape
         Npulse = testFeat.shape[0]
@@ -150,6 +167,8 @@ def genSimilarComposition(pulsePeriod, taalInfo, pieceDur, iAudio, strokeModels 
         strokeTime = np.array([])
         strokeAmp = np.array([])
         tscurr = 0.0
+        mPos = 1
+        mPosMax = taals[taalInfo]["nmatra"]
         # opulsePos = np.arange(0,pieceDur,pulsePeriod)
         # take off with a theka
         for k in xrange(len(thekaSlow[taalInfo]['bol'])):
@@ -159,15 +178,115 @@ def genSimilarComposition(pulsePeriod, taalInfo, pieceDur, iAudio, strokeModels 
             strokeAmp = np.append(strokeAmp, thekaSlow[taalInfo]['amp'][k])
         # Then get feature based improv
         for k in range(Npulse):
+            # First find the best timbrally similar stroke through a very basic distance
             ftIn = testFeat[k,params.selectInd]
             distVal = 1e6*np.ones(Ndata)
-            strokeTime = np.append(strokeTime,tscurr)
-            strokeAmp = np.append(strokeAmp, np.random.rand())
-            tscurr = tscurr + pulsePeriod
             for p in range(Ndata):
                 ftOut = strokeModels[p]['feat']['pmfcc'][0][params.selectInd]
                 distVal[p] = DS.mahalanobis(ftIn,ftOut,invC)
-            strokeSeq.append(strokeModels[np.argmin(distVal)]['strokeId'][0])
+            # Now find how many onsets exist in the "pulse"
+            ind1 = np.where(onsets_rms >= testFeatFull['pst'][k])[0]
+            ind2 = np.where(onsets_rms < testFeatFull['pet'][k])[0]
+            indSel = np.intersect1d(ind1,ind2)
+            print mPos
+            if len(indSel) == 0:
+                if mPos == 1:
+                    chooseInd = [x for x in range(len(strokeModels)) if ('dha' in strokeModels[x]['strokeId'][0] or 'dhi' in strokeModels[x]['strokeId'][0])]
+                    chooseInd = np.random.permutation(len(chooseInd))[0]
+                    strokeSeq.append(strokeModels[chooseInd]['strokeId'][0])
+                    strokeAmp = np.append(strokeAmp, 1)
+                    strokeTime = np.append(strokeTime,tscurr)
+                    tscurr = tscurr + pulsePeriod
+                else:
+                    # Choose a base stroke
+                    chooseInd = [x for x in range(len(strokeModels)) if ('ge' in strokeModels[x]['strokeId'][0])]
+                    chooseInd = np.random.permutation(len(chooseInd))[0]
+                    strokeSeq.append(strokeModels[chooseInd]['strokeId'][0])
+                    strokeAmp = np.append(strokeAmp, 0.8 + 0.1*np.random.rand())
+                    strokeTime = np.append(strokeTime,tscurr)
+                    tscurr = tscurr + pulsePeriod
+            elif len(indSel) == 1:
+                # One onset only
+                onsets_pulse = onsets_rms[indSel] - testFeatFull['pst'][k]
+                # If this is sam, then add some strong beat here, like a dha or dhi
+                if mPos == 1:
+                    chooseInd = [x for x in range(len(strokeModels)) if ('dha' in strokeModels[x]['strokeId'][0] or 'dhi' in strokeModels[x]['strokeId'][0])]
+                    chooseInd = np.random.permutation(len(chooseInd))[0]
+                    strokeSeq.append(strokeModels[chooseInd]['strokeId'][0])
+                    strokeAmp = np.append(strokeAmp, 1)
+                    strokeTime = np.append(strokeTime,tscurr)
+                    tscurr = tscurr + pulsePeriod
+                else:
+                    if np.random.rand() > params.strokeDoublingP:
+                        strokeSeq.append(strokeModels[np.argmin(distVal)]['strokeId'][0])
+                        strokeAmp = np.append(strokeAmp, 0.8 + 0.1*np.random.rand())
+                        strokeTime = np.append(strokeTime,tscurr)
+                        tscurr = tscurr + pulsePeriod
+                    else:
+                        # Choose one more randomly from a ringing stroke
+                        chooseInd = [x for x in range(len(strokeModels)) if ('tun' in strokeModels[x]['strokeId'][0] or 'na' in strokeModels[x]['strokeId'][0] or 'dun' in strokeModels[x]['strokeId'][0] )]
+                        chooseInd = np.random.permutation(len(chooseInd))[0]
+                        strokeSeq.append(strokeModels[chooseInd]['strokeId'][0])
+                        strokeAmp = np.append(strokeAmp, 0.8 + 0.1*np.random.rand())
+                        strokeTime = np.append(strokeTime,tscurr)
+                        tscurr = tscurr + pulsePeriod/2
+                        # And get the timbrally similar one also
+                        strokeSeq.append(strokeModels[np.argmin(distVal)]['strokeId'][0])
+                        strokeAmp = np.append(strokeAmp, 0.7 + 0.1*np.random.rand())
+                        strokeTime = np.append(strokeTime,tscurr)
+                        tscurr = tscurr + pulsePeriod/2
+            else:
+                if mPos == 1:
+                    # Choose a dha or dhi for half duration
+                    chooseInd = [x for x in range(len(strokeModels)) if ('dha' in strokeModels[x]['strokeId'][0] or 'dhi' in strokeModels[x]['strokeId'][0])]
+                    chooseInd = np.random.permutation(len(chooseInd))[0]
+                    strokeSeq.append(strokeModels[chooseInd]['strokeId'][0])
+                    strokeAmp = np.append(strokeAmp, 1)
+                    strokeTime = np.append(strokeTime,tscurr)
+                    tscurr = tscurr + pulsePeriod/2
+                    # Now choose half the roll
+                    chooseInd = np.random.permutation(len(rolls))[0]
+                    rollNow = rolls[chooseInd]
+                    for k in xrange(2):
+                        strokeSeq.append(rollNow['bol'][k])
+                        strokeTime = np.append(strokeTime,tscurr)
+                        tscurr = tscurr + pulsePeriod/4
+                        strokeAmp = np.append(strokeAmp, rollNow['amp'][k])
+                else:
+                    # Play a roll otherwise!
+                    chooseInd = np.random.permutation(len(rolls))[0]
+                    rollNow = rolls[chooseInd]
+                    if np.random.rand() > params.rollP:
+                        nStrokesRoll = 2
+                    else:
+                        nStrokesRoll = 4
+                    # Now get the roll     
+                    for k in range(nStrokesRoll):
+                        strokeSeq.append(rollNow['bol'][k])
+                        strokeTime = np.append(strokeTime,tscurr)
+                        tscurr = tscurr + pulsePeriod/nStrokesRoll
+                        strokeAmp = np.append(strokeAmp, rollNow['amp'][k])
+                        
+            # Increment metrical position 
+            mPos = mPos + 1
+            if mPos > mPosMax:
+                mPos = 1
+                
+        # Put filler strokes till the cycle ends
+        while mPos <= mPosMax:
+            # One random stroke
+            chooseInd = np.random.permutation(len(strokeModels))
+            strokeSeq.append(strokeModels[chooseInd[0]]['strokeId'][0])
+            strokeAmp = np.append(strokeAmp, 0.9 + 0.1*np.random.rand())
+            strokeTime = np.append(strokeTime,tscurr)
+            tscurr = tscurr + pulsePeriod/2.0
+            # Another random stroke
+            strokeSeq.append(strokeModels[chooseInd[1]]['strokeId'][0])
+            strokeAmp = np.append(strokeAmp, 0.9 + 0.1*np.random.rand())
+            strokeTime = np.append(strokeTime,tscurr)
+            tscurr = tscurr + pulsePeriod/2.0
+            mPos = mPos + 1
+        
         # Finish with a tihai
         for k in xrange(len(fullTihais[taalInfo + '_1']['bol'])):
             chooseInd = [x for x in range(len(strokeModels)) if strokeModels[x]['strokeId'][0] == fullTihais[taalInfo + '_1']['bol'][k]]
@@ -175,7 +294,7 @@ def genSimilarComposition(pulsePeriod, taalInfo, pieceDur, iAudio, strokeModels 
             strokeTime = np.append(strokeTime,tscurr)
             tscurr = tscurr + fullTihais[taalInfo + '_1']['dur'][k]*pulsePeriod
             strokeAmp = np.append(strokeAmp, fullTihais[taalInfo + '_1']['amp'][k])
-    return strokeSeq, strokeTime, strokeAmp, pulsePeriod # np.median(np.diff(opulsePos))
+    return testFeatFull, strokeSeq, strokeTime, strokeAmp, pulsePeriod # np.median(np.diff(opulsePos))
 
 def getJawaabLive(ipAudio, ipulsePer, iTaal = "teen", strokeModels = strokeModelsG):
     # If poolFeats are not built, give an error!
@@ -193,11 +312,11 @@ def getJawaabLive(ipAudio, ipulsePer, iTaal = "teen", strokeModels = strokeModel
         else:
             audioIn = hps(ipAudio)
         fss = params.Fs
-        strokeSeq, strokeTime, strokeAmp, opulsePer = genSimilarComposition(pulsePeriod, iTaal, pieceDur = len(audioIn)/params.Fs, iAudio = audioIn, strokeModels = strokeModels, invC = invCmat)
+        testFeatFull, strokeSeq, strokeTime, strokeAmp, opulsePer = genSimilarComposition(pulsePeriod, iTaal, pieceDur = len(audioIn)/params.Fs, iAudio = audioIn, strokeModels = strokeModels, invC = invCmat)
         #audioOut = genAudioFromStrokeSeq(strokeModels, strokeSeq, strokeAmp, strokeTime)
         #plt.plot(audioOut)
         #plt.show()
-    return strokeSeq, strokeTime, strokeAmp, opulsePer
+    return testFeatFull, strokeSeq, strokeTime, strokeAmp, opulsePer
 
 def testModuleLive(inputFile = '../dataset/testInputs/testInput_3.wav', pulsePos = getPulsePosFromAnn('../dataset/testInputs/testInput_3.csv')):    
     global strokeModelsG
@@ -205,9 +324,9 @@ def testModuleLive(inputFile = '../dataset/testInputs/testInput_3.wav', pulsePos
     # print ipulsePer
     fss, ipAudio = UF.wavread(inputFile)
     print "Analysing input..."
-    strokeSeq, strokeTime, strokeAmp, opulsePer = getJawaabLive(ipAudio, ipulsePer)
+    testFeatFull, strokeSeq, strokeTime, strokeAmp, opulsePer = getJawaabLive(ipAudio, ipulsePer)
     audioOut = genAudioFromStrokeSeq(strokeModelsG,strokeSeq,strokeAmp,strokeTime)
-    return audioOut, strokeSeq, strokeTime, strokeAmp, opulsePer
+    return testFeatFull, audioOut, strokeSeq, strokeTime, strokeAmp, opulsePer
     
 if __name__ == "__main__":
     print "Testing..."

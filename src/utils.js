@@ -57,25 +57,3 @@ function offBlinker() {
 
 	setTimeout(onBlinker, getBlinkOffSpeed());
 }
-
-function onBlinkerSam() {
-
-	var $disp = $("#tempoView");
-	$disp.html("SAM");
-
-	var $blinker = $("#blinkerSam");
-	$blinker.css("background-color","white");
-
-	setTimeout(offBlinkerSam, getBlinkOnSpeed());
-}
-
-function offBlinkerSam() {
-	var $disp = $("#tempoView");
-	$disp.html("");
-
-	var $blinker = $("#blinkerSam");
-	$blinker.css("background-color","white");
-
-	setTimeout(onBlinkerSam, getBlinkOffSpeed());
-}
-

@@ -9,3 +9,7 @@ Nfft = int(np.power(2, np.ceil(np.log2(frmSize))))
 zeropadLen = Nfft - frmSize
 speedUpFactor = 2
 selectInd = np.arange(1,13)
+
+# Probability parameters
+strokeDoublingP = 0.4
+rollP = 0.4

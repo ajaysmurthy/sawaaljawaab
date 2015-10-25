@@ -95,7 +95,7 @@ def upload_audio():
         blob = request.files['data']
         blob.save('temp.wav')
         audio = anal.ess.MonoLoader(filename = 'temp.wav')()
-        strokeSeq, strokeTime, strokeAmp, opulsePer = anal.getJawaabLive(audio, PULSEP, iTaal = TAAL_ID)
+        featFull, strokeSeq, strokeTime, strokeAmp, opulsePer = anal.getJawaabLive(audio, PULSEP, iTaal = TAAL_ID)
         output = {'strokeTime': strokeTime.tolist(), 'strokeAmp': strokeAmp.tolist(), 'strokeList': strokeSeq}
     return jsonify(**output)
 
