@@ -6,7 +6,7 @@
 		this.appName = "SawaalJawaab";
 	});
 
-	app.controller("RecordController", function($scope, $timeout) {
+	app.controller("RecordController", function($scope,$timeout) {
 		this.recording = false;
 
 		////////////////////////////////////////////////////////////////////////////
@@ -29,10 +29,13 @@
 		var mediaStream;
 		var rec;
 
-		var record = function() {
+		function record() {
+
+			this.recording = true;
+			$("#recordingInfo").html("Recording ...");
                     
-                    console.log("Started Recording!");
-                    console.log(new Date().getTime());
+            console.log("Started Recording!");
+            console.log(new Date().getTime());
                     // ask for permission and start recording
 		  	navigator.getUserMedia({audio: true}, function(localMediaStream){
 		    mediaStream = localMediaStream;
@@ -53,12 +56,14 @@
 		  });
 		};
 
-		var stopRec = function() {
+		function stopRec() {
 		  // stop the media stream
 		  mediaStream.stop();
 
 		  // stop Recorder.js
 		  rec.stop();
+
+		  $("#recordingInfo").html("");
                 
 
 		  // export it to WAV
@@ -94,8 +99,9 @@
 		this.startRecording = function() {
 			console.log("Recording Button Clicked ....");
                         console.log("current time", nextSamaTime - new Date().getTime(), new Date().getTime());
-			this.recording = true;
-			$timeout(record, nextSamaTime - new Date().getTime);
+			var currTime = new Date().getTime();
+			$("#recordingInfo").html("Waiting for recording to start...");
+			$timeout(record, nextSamaTime - currTime);
                         //setTimeout(record, nextSamaTime - new Date().getTime);
 		};
 
@@ -109,6 +115,7 @@
 	app.controller("TempoController", function() {
 		this.tempo = 100;
 	});
+
 })(window);
 
 

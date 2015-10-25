@@ -27,12 +27,13 @@
 			This is {{sj.appName}}! Choose a taal and tempo, and hold down the record button to record!
 		</p>
                 <button onclick="startMetronome()">Start Metronome</button>
-		<button onclick="stopMetronome()">Stop Metronome</button>
-                <br></br>
+		      <button onclick="stopMetronome()">Stop Metronome</button>
+                <br><br>
 		<div ng-controller="RecordController as rec">
 			<button ng-mousedown="rec.startRecording()" ng-mouseup="rec.stopRecording()" ng-class="{'btn-danger': rec.isRecording(), btn: true}">
 				Click and hold to Record!
 			</button>
+            <span id="recordingInfo"></span>
 		</div> <br>
 		<br></br>
 		<div ng-controller="TempoController as tempo">
