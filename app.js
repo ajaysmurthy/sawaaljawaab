@@ -29,9 +29,8 @@
 		var mediaStream;
 		var rec;
 
-		function record() {
+		var record =function() {
 
-			this.recording = true;
 			$("#recordingInfo").html("Recording ...");
                     
             console.log("Started Recording!");
@@ -56,7 +55,7 @@
 		  });
 		};
 
-		function stopRec() {
+		var stopRec = function() {
 		  // stop the media stream
 		  mediaStream.stop();
 
@@ -98,7 +97,8 @@
 
 		this.startRecording = function() {
 			console.log("Recording Button Clicked ....");
-                        console.log("current time", nextSamaTime - new Date().getTime(), new Date().getTime());
+			this.recording = true;
+            console.log("current time", nextSamaTime - new Date().getTime(), new Date().getTime());
 			var currTime = new Date().getTime();
 			$("#recordingInfo").html("Waiting for recording to start...");
 			$timeout(record, nextSamaTime - currTime);
