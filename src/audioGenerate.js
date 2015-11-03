@@ -78,6 +78,7 @@ function playThekaButton() {
 }
 function buildTheka(){
     total_out_dur = tala_info.strokeTime[tala_info.strokeTime.length-1] + bufferTailLen;
+    console.log(total_out_dur);
     var frameCount = sampleRate*total_out_dur;
     audioBuffer = audio_context.createBuffer(nChannels, frameCount, sampleRate);
     for (var channel = 0 ; channel < nChannels; channel ++){
@@ -138,7 +139,7 @@ function onMetVolChange() {
 function playTheka(){
     console.log('Started the playback')
     if (isPlaying == true){
-            stopPlaying();
+        stopPlaying();
     }
     playSound = audio_context.createBufferSource();
     playSound.buffer = audioBuffer;
@@ -158,21 +159,25 @@ function stopPlaying(){
         playSound.stop();
         isPlaying = false;        
     }
+};
+function stopPlayingButton(){
+    if (isPlaying == true){
+        playSound.stop();
+        isPlaying = false;        
+    }
     if (isMetronomePlaying == true){ 
         $("#recordingInfo").html("Ready to record ...");
     }
     else {
         $("#recordingInfo").html("Start Metronome to begin!");
     }
-    
-};
+}
 
 function stopMetronomeAudio(){
     if (isMetronomePlaying == true){
         metronome.stop();
         isMetronomePlaying = false;        
     }
-    
 };
 
 // Function that initializes the audio context

@@ -41,7 +41,7 @@
 		 During Hindustani music concerts, it is common to have a call-response improvisatory passages between musicians, called a <b>sawaal-jawaab</b> (literally, question-answer). This is such an improvisation system - with the call being the vocal recitation of tabla syllables (bols). The response is an improvisation of the call built using timing, rhythmic and timbral features from the call, exploiting the onomatopeioc nature of the tabla bols. Such an improvisation is done within the framework of a specific taal, the rhythmic framework of Hindustani music. 
 		</p>
 		<p style="font-size:13px">
-		<b> Instructions </b>
+		<b> Instructions (Use Google Chrome for best results)</b>
 		</p>
 		<ol style="font-size:12px">
                 <li> Use the tempo slider to set a tempo. Select the taal (metrical cycle) from the dropdown. </li>
@@ -53,7 +53,7 @@
 		<hr>
 		<div ng-controller="TempoController as tempo">
 			<label for="tempoControl">Choose Tempo:</label>
-			<input type="range" id="tempoControl" min="150" max="250" value="180" onchange="onTempoChange()">
+			<input type="range" id="tempoControl" min="120" max="250" value="180" onchange="onTempoChange()">
 			<span id="tempoView"></span> <p id="tempoValDisp"> 180 beats(matras) per minute</p>
 		</div>
                 <br></br>
@@ -102,7 +102,7 @@
                 <!--
                 <button onclick="buildTheka()">Build Response</button>
                 -->
-                <button onclick="stopPlaying()">Stop Playing</button>
+                <button onclick="stopPlayingButton()">Stop Playing</button>
   		<button onclick="playThekaButton()">Play Response Again</button>
 		<br> </br>
 		<p>Additional description can be found at <a href="http://labrosa.ee.columbia.edu/hamr_ismir2015/proceedings/doku.php?id=sawaal-jawaab"> HAMR 2015 wiki</a>		
