@@ -27,7 +27,9 @@ function onTempoChange() {
                 }).done(function(data) {
                     console.log(data);
                 });
-        $("#tempoValDisp").html($("#tempoControl").val())
+        var currStr = $("#tempoControl").val();
+        console.log(currStr.concat(" beats(matras) per minute"))
+        $("#tempoValDisp").html(currStr.concat(" beats per minute"))
         stopMetronome();
         startMetronome();
                 
@@ -92,13 +94,18 @@ function startMetronome() {
         
         samaScheduler = setInterval(samaArrived, samaDuration*1000);
         beatScheduler = setInterval(beatArrived, beatDuration*1000);
-        
+    
+        $("#recordButton").removeAttr("disabled");
+        $("#recordingInfo").html("Ready to record ...");
 }
 function stopMetronome(){
     
     stopMetronomeAudio();
     clearInterval(samaScheduler);
     clearInterval(beatScheduler);
+    $("#recordButton").attr("disabled", "disabled");
+    $("#recordingInfo").html("Start Metronome to begin!");
+    
 }
 
 function offBlinker() {

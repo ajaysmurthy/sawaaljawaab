@@ -1,6 +1,9 @@
 //global variables
 var audio_context;
+var metVolNode;
+var metronomeVolValue = 0.8;
 var isPlaying = false;
+var isMetronomePlaying = false;
 var source1;
 var nChannels = 1;
 var tabla_strokes;
@@ -11,6 +14,7 @@ var theka = 'teental';
 var total_out_dur;
 var tala_info;
 var playSound;
+var bufferTailLen = 2.0;
 var beatPosition = {'teen': {'durratio': [0, .25, .5, .75], 'bol': ['hiClick', 'lowClick', 'lowClick', 'lowClick']},
     'ek': {'durratio': [0, .25, .5, .75], 'bol': ['hiClick', 'lowClick', 'lowClick', 'lowClick']},
     'jhap': {'durratio': [0, 0.2, .5, .7], 'bol': ['hiClick', 'lowClick', 'lowClick', 'lowClick']},
@@ -18,7 +22,6 @@ var beatPosition = {'teen': {'durratio': [0, .25, .5, .75], 'bol': ['hiClick', '
 };
 var clickSounds;
 var metronome;
-var isMetronomePlaying = false;
 
 function setBarLength(length){
     barLength = length
@@ -35,6 +38,8 @@ getClicks.onreadystatechange = function() {
     if (getClicks.readyState == 4 && getClicks.status == 200) {
         clickSounds = JSON.parse(getClicks.responseText);
         startMetronome();
+        onTempoChange();
+        onTaalChange();
     }
 }
 
@@ -45,7 +50,6 @@ getSound.send();
 getSound.onreadystatechange = function() {
     if (getSound.readyState == 4 && getSound.status == 200) {
         tabla_strokes = JSON.parse(getSound.responseText);
-
     }
 }
 
@@ -62,6 +66,7 @@ getSound.onreadystatechange = function() {
 
 function playBackWithDelay() {
     console.log("Inside playBackWithDelay");
+    $("#recordingInfo").html("Waiting for next sam (downbeat) to play response...");
     buildTheka();
     playTheka();
     setTimeout(startPlayTheka, nextSamaTime - new Date().getTime());
@@ -72,7 +77,7 @@ function playThekaButton() {
     startPlayTheka();
 }
 function buildTheka(){
-    total_out_dur = tala_info.strokeTime[tala_info.strokeTime.length-1] + 2;
+    total_out_dur = tala_info.strokeTime[tala_info.strokeTime.length-1] + bufferTailLen;
     var frameCount = sampleRate*total_out_dur;
     audioBuffer = audio_context.createBuffer(nChannels, frameCount, sampleRate);
     for (var channel = 0 ; channel < nChannels; channel ++){
@@ -99,13 +104,13 @@ function buildMetronometrack(){
         var barLen = samaDuration;
         for (var bol_ind in beatPosition[currTala]['bol']){
             start = Math.floor(samaDuration*beatPosition[currTala]['durratio'][bol_ind]*sampleRate);
-            console.log(beatPosition[currTala]['durratio'][bol_ind], currTala);
+            //console.log(beatPosition[currTala]['durratio'][bol_ind], currTala);
             len_stroke = clickSounds[beatPosition[currTala]['bol'][bol_ind]].length
             for (var ii = 0; ii < len_stroke; ii++){
                 nowBuffering[start + ii] = nowBuffering[start + ii] + clickSounds[beatPosition[currTala]['bol'][bol_ind]][ii]/32767.0;           
             }
         }
-        console.log(nowBuffering);
+        //console.log(nowBuffering);
     }
 }
 
@@ -115,11 +120,20 @@ function playMetronomeAudio(){
     }
     metronome = audio_context.createBufferSource();
     metronome.buffer = audioBufferMetronome;
-    metronome.connect(audio_context.destination);
+    metVolNode = audio_context.createGain();
+    metronome.connect(metVolNode);
+    metVolNode.connect(audio_context.destination);
+    metVolNode.gain.value = metronomeVolValue;
     metronome.loop = true;
     metronome.start(0);
     isMetronomePlaying = true;
 };
+
+function onMetVolChange() {
+    metronomeVolValue = 0.01*parseFloat($("#metVol").val());
+    console.log(metronomeVolValue);
+    metVolNode.gain.value = metronomeVolValue;
+}
 
 function playTheka(){
     console.log('Started the playback')
@@ -132,14 +146,23 @@ function playTheka(){
 };
 
 function startPlayTheka() {
+    $("#recordingInfo").html("Playing response...");
+    console.log(playSound.buffer.duration)
     playSound.start(0);  
     isPlaying = true;
+    setTimeout(function(){$("#recordingInfo").html("Ready to record ...");}, (playSound.buffer.duration - bufferTailLen)*1000);
 }
 
 function stopPlaying(){
     if (isPlaying == true){
         playSound.stop();
         isPlaying = false;        
+    }
+    if (isMetronomePlaying == true){ 
+        $("#recordingInfo").html("Ready to record ...");
+    }
+    else {
+        $("#recordingInfo").html("Start Metronome to begin!");
     }
     
 };
@@ -159,13 +182,15 @@ function init() {
       navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
       window.URL = window.URL || window.webkitURL;
       
-      audio_context = new AudioContext();      
+      audio_context = new AudioContext();
+      
     } catch (e) {
       alert('No web audio support in this browser!');
     }
     sampleRate = audio_context.sampleRate;
-    
 };
+
+
 
 
 

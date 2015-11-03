@@ -22,7 +22,6 @@ TablaStrokesPath = json.load(open('../dataset/filelist.json', 'r'))
 
 clickStrokes = {'hiClick': '../dataset/hiclick.wav', 'lowClick': '../dataset/loclick.wav'}
 
-
 @app.route('/')
 def index():
     return "tabla demo"

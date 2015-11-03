@@ -31,10 +31,10 @@
 
 		var record =function() {
 
-			$("#recordingInfo").html("Recording ...");
+                    $("#recordingInfo").html("Recording ...");
                     
-            console.log("Started Recording!");
-            console.log(new Date().getTime());
+                    console.log("Started Recording!");
+                    console.log(new Date().getTime());
                     // ask for permission and start recording
 		  	navigator.getUserMedia({audio: true}, function(localMediaStream){
 		    mediaStream = localMediaStream;
@@ -60,10 +60,7 @@
 		  mediaStream.stop();
 
 		  // stop Recorder.js
-		  rec.stop();
-
-		  $("#recordingInfo").html("");
-                
+		  rec.stop();                
 
 		  // export it to WAV
 		  rec.exportWAV(function(e){
@@ -100,7 +97,7 @@
 			this.recording = true;
             console.log("current time", nextSamaTime - new Date().getTime(), new Date().getTime());
 			var currTime = new Date().getTime();
-			$("#recordingInfo").html("Waiting for recording to start...");
+			$("#recordingInfo").html("Waiting for next sam (downbeat) to start recording...");
 			$timeout(record, nextSamaTime - currTime);
                         //setTimeout(record, nextSamaTime - new Date().getTime);
 		};
