@@ -199,7 +199,7 @@ function init() {
     sampleRate = audio_context.sampleRate;
 
     // dummy call to get the user permission ...
-    navigator.getUserMedia({audio: true}, function(){});
+    navigator.getUserMedia({audio: true}, function(){}, function(){});
     
     setTimeout(checkDataLoadFinished, 50);
 };
