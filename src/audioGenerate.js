@@ -203,13 +203,14 @@ function init() {
 
 function checkDataLoadFinished() {
     if (clickSoundsRecvd && tablaSoundsRecvd) {
-        setTimeout(checkDataLoadFinished, 50);
-    } else {
-        startMetronome();
+
+	startMetronome();
         onTempoChange();
         onTaalChange();
         $("#recordingInfo").html("Ready to record ...");
         $("#recordButton").removeAttr("disabled");
+    } else {
+        setTimeout(checkDataLoadFinished, 50);        
     }
     
 }
