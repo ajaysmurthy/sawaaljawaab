@@ -20,7 +20,7 @@ function onTempoChange() {
 	currTempo = Number($("#tempoControl").val());
         $.ajax({
                     type: "POST",
-                    url: "http://127.0.0.1:5000/set_tempo",
+                    url: "/sawaaljawaab/api/set_tempo",
                     data: JSON.stringify({'tempo': 60.0/parseFloat($("#tempoControl").val())}),
                     contentType: 'application/json',
                     dataType: 'json'
@@ -40,7 +40,7 @@ function onTaalChange(){
 	currTala = $("#taal").val();
         $.ajax({
                     type: "POST",
-                    url: "http://127.0.0.1:5000/set_taal",
+                    url: "/sawaaljawaab/api/set_taal",
                     data: JSON.stringify({'taal': $("#taal").val()}),
                     contentType: 'application/json',
                     dataType: 'json'

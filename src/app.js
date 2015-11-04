@@ -45,7 +45,7 @@
 		    // create new instance of Recorder.js using the mediaStreamSource
 		    rec = new Recorder(mediaStreamSource, {
 		      // pass the path to recorderWorker.js file here
-		      workerPath: '/bower_components/recorderjs/recorderWorker.js'
+		      workerPath: '/sawaaljawaab/bower_components/recorderjs/recorderWorker.js'
 		    });
 
 		    // start recording
@@ -71,7 +71,7 @@
                     fd.append('data', e);
                     $.ajax({
                         type: "POST",
-                        url: "http://127.0.0.1:5000/upload_audio",
+                        url: "/sawaaljawaab/api/upload_audio",
                         data: fd,
                         processData: false,
                         contentType: false

@@ -32,7 +32,7 @@ function setTheka(theka_inp){
 }
 
 var getClicks = new XMLHttpRequest();
-getClicks.open("GET", "http://127.0.0.1:5000/get_click_sounds", true);
+getClicks.open("GET", "/sawaaljawaab/api/get_click_sounds", true);
 getClicks.send();
 getClicks.onreadystatechange = function() {
     if (getClicks.readyState == 4 && getClicks.status == 200) {
@@ -45,7 +45,7 @@ getClicks.onreadystatechange = function() {
 
 // fetching dictionary of sounds
 var getSound = new XMLHttpRequest();
-getSound.open("GET", "http://127.0.0.1:5000/get_tabla_sounds", true);
+getSound.open("GET", "/sawaaljawaab/api/get_tabla_sounds", true);
 getSound.send();
 getSound.onreadystatechange = function() {
     if (getSound.readyState == 4 && getSound.status == 200) {
@@ -55,7 +55,7 @@ getSound.onreadystatechange = function() {
 
 //fetch tala information
 // var getTala = new XMLHttpRequest();
-// getTala.open("GET", "http://127.0.0.1:5000/get_tala_info", true);
+// getTala.open("GET", "/sawaaljawaab/api/get_tala_info", true);
 // getTala.send();
 // getTala.onreadystatechange = function() {
 //     if (getTala.readyState == 4 && getTala.status == 200) {
