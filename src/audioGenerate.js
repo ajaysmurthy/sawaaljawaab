@@ -197,6 +197,9 @@ function init() {
       alert('No web audio support in this browser!');
     }
     sampleRate = audio_context.sampleRate;
+
+    // dummy call to get the user permission ...
+    navigator.getUserMedia({audio: true}, function(){});
     
     setTimeout(checkDataLoadFinished, 50);
 };
