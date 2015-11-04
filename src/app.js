@@ -61,7 +61,7 @@
 
 		  // stop Recorder.js
 		  rec.stop();                
-
+                  $("#recordingInfo").html("Sending recording to the server ...");
 		  // export it to WAV
 		  rec.exportWAV(function(e){
 		    rec.clear();
@@ -77,6 +77,7 @@
                         contentType: false
                     }).done(function(data) {
                         tala_info = data;
+                        $("#recordingInfo").html("Waiting for next sam (downbeat) to play response...");
                         playBackWithDelay();
                         console.log(tala_info);
                     });

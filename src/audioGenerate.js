@@ -23,6 +23,9 @@ var beatPosition = {'teen': {'durratio': [0, .25, .5, .75], 'bol': ['hiClick', '
 var clickSounds;
 var metronome;
 
+var clickSoundsRecvd = false;
+var tablaSoundsRecvd = false;
+
 function setBarLength(length){
     barLength = length
 }
@@ -37,9 +40,8 @@ getClicks.send();
 getClicks.onreadystatechange = function() {
     if (getClicks.readyState == 4 && getClicks.status == 200) {
         clickSounds = JSON.parse(getClicks.responseText);
-        startMetronome();
-        onTempoChange();
-        onTaalChange();
+        
+        clickSoundsRecvd = true;
     }
 }
 
@@ -50,8 +52,11 @@ getSound.send();
 getSound.onreadystatechange = function() {
     if (getSound.readyState == 4 && getSound.status == 200) {
         tabla_strokes = JSON.parse(getSound.responseText);
+
+        tablaSoundsRecvd = true;
     }
 }
+
 
 //fetch tala information
 // var getTala = new XMLHttpRequest();
@@ -66,7 +71,6 @@ getSound.onreadystatechange = function() {
 
 function playBackWithDelay() {
     console.log("Inside playBackWithDelay");
-    $("#recordingInfo").html("Waiting for next sam (downbeat) to play response...");
     buildTheka();
     playTheka();
     setTimeout(startPlayTheka, nextSamaTime - new Date().getTime());
@@ -193,7 +197,22 @@ function init() {
       alert('No web audio support in this browser!');
     }
     sampleRate = audio_context.sampleRate;
+    
+    setTimeout(checkDataLoadFinished, 50);
 };
+
+function checkDataLoadFinished() {
+    if (clickSoundsRecvd && tablaSoundsRecvd) {
+        setTimeout(checkDataLoadFinished, 50);
+    } else {
+        startMetronome();
+        onTempoChange();
+        onTaalChange();
+        $("#recordingInfo").html("Ready to record ...");
+        $("#recordButton").removeAttr("disabled");
+    }
+    
+}
 
 
 
