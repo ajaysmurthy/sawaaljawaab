@@ -1,4 +1,4 @@
-## Table analysis and synthesis module for the HAMR 2015 ISMIR hack
+## Tabla analysis and synthesis module for the HAMR 2015 ISMIR hack
 
 import os
 import essentia as es
