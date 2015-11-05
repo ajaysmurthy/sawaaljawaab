@@ -29,7 +29,6 @@ taals = {"teen": {"nmatra": 16, "accents": np.array([4, 1, 1, 1, 3, 1, 1, 1, 2, 
          "rupak": {"nmatra": 7, "accents": np.array([2, 1, 1, 3, 1, 3, 1])}
          }
 
-
 rolls = [{"bol": ['dha/dha_02', 'te/te_05', 're/re_04', 'dha/dha_02'], "dur": np.array([1.0, 1.0, 1, 1]), "amp": np.array([1.0, 1.0, 1.0, 1.0])},
          {"bol": ['te/te_02', 're/re_05', 'ke/ke_04', 'te/te_02'], "dur": np.array([1.0, 1.0, 1, 1]), "amp": np.array([1.0, 1.0, 1.0, 1.0])},
          {"bol": ['ge/ge_02', 'ge/ge_05', 'te/te_04', 'te/te_02'], "dur": np.array([1.0, 1.0, 1, 1]), "amp": np.array([1.0, 1.0, 1.0, 1.0])},
@@ -42,9 +41,8 @@ rolls = [{"bol": ['dha/dha_02', 'te/te_05', 're/re_04', 'dha/dha_02'], "dur": np
 # Need different tihais for different letters remaining, start from say,  matras
 
 fullTihais = {"teen_1": {"totDur": 17, "bol": ['te/te_08', 're/re_01', 'ke/ke_01', 'te/te_02', 'dhi/dhi_01', 're/re_01', 'ke/ke_01', 'te/te_02', 'dhi/dhi_01', 'ke/ke_01', 'te/te_02', 'dhi/dhi_01', 'te/te_02', 'dhi/dhi_02'], "dur": np.array([1.0, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1]), "amp": np.array([0.7, 0.7, 0.7, 0.7, 1, 0.7, 0.7, 0.7, 1, 0.7, 0.7, 1, 0.8, 1])},
-            "ek_1": {"totDur": 12, "bol": ['dha/dha_01', 'ge/ge_01', 'dhi/dhi_01', 'dha/dha_01', 'ge/ge_01', 'dhi/dhi_01', 'dha/dha_01', 'ge/ge_01', 'dhi/dhi_01'], "dur": np.array([1.0, 1, 2, 1, 1, 2, 1, 1, 2]), "amp": np.array([0.8, 0.8, 1, 0.8, 0.8, 1, 0.8, 0.8, 1])},
-            "jhap_1": {"totDur": 11, "bol": ['dha/dha_01', 'ge/ge_01', 'dha/dha_01', 'dha/dha_02', 'ge/ge_01', 'dha/dha_01', 'dha/dha_02', 'dha/dha_03', 'ge/ge_01'], "dur": np.array([1.0, 2, 1, 1, 2, 1, 1, 1, 1]), "amp": np.array([1.0, 0.8, 1, 1, 0.8, 1, 0.8, 0.8, 1])},
-            "rupak_1": {"totDur": 14, "bol": ['te/te_08', 're/re_01', 'ke/ke_01', 'te/te_02', 'dhi/dhi_01', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_02', 'dhi/dhi_01', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_02'], "dur": np.array([1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]), "amp": np.array([0.8, 0.8, 0.8, 0.8, 1, 0.8, 0.8, 0.8, 0.8, 1, 0.8, 0.8, 0.8, 0.8])}
+            "ek_1": {"totDur": 13, "bol": ['dha/dha_01', 'ge/ge_01', 'dhi/dhi_01', 'dha/dha_01', 'ge/ge_01', 'dhi/dhi_01', 'dha/dha_01', 'ge/ge_01', 'dhi/dhi_01', 'dha/dha_01'], "dur": np.array([1.0, 1, 2, 1, 1, 2, 1, 1, 2, 1]), "amp": np.array([0.8, 0.8, 1, 0.8, 0.8, 1, 0.8, 0.8, 1, 1])}, "jhap_1": {"totDur": 11, "bol": ['dha/dha_01', 'ge/ge_01', 'dha/dha_01', 'dha/dha_02', 'ge/ge_01', 'dha/dha_01', 'dha/dha_02', 'dha/dha_03', 'ge/ge_01'], "dur": np.array([1.0, 2, 1, 1, 2, 1, 1, 1, 1]), "amp": np.array([1.0, 0.8, 1, 1, 0.8, 1, 0.8, 0.8, 1])},
+            "rupak_1": {"totDur": 15, "bol": ['te/te_08', 're/re_01', 'ke/ke_01', 'te/te_02', 'dhi/dhi_01', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_02', 'dhi/dhi_01', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_02', 'dhi/dhi_01'], "dur": np.array([1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]), "amp": np.array([0.8, 0.8, 0.8, 0.8, 1, 0.8, 0.8, 0.8, 0.8, 1, 0.8, 0.8, 0.8, 0.8, 1])}
             }
 
 thekaSlow = {"teen": {"totDur": 16, "bol": ['dha/dha_01', 'dhi/dhi_01', 'dhi/dhi_02', 'dha/dha_01', 'dha/dha_01', 'dhi/dhi_01', 'dhi/dhi_02', 'dha/dha_01', 'dha/dha_01', 'tun/tun_01', 'tun/tun_02', 'na/na_01', 'dhi/dhi_01', 'na/na_01', 'dha/dha_01', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_08', 'dha/dha_02', 'te/te_08', 're/re_01', 'ke/ke_01', 'te/te_02'], "dur": np.array([1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.5, 0.25, 0.25, 0.25, 0.25]), "amp": np.array([1.0, 0.8, 0.8, 0.8, 1, 0.8, 0.8, 0.8, 0.9, 0.8, 0.8, 0.9, 1, 0.9, 0.8, 0.7, 0.7, 0.7, 0.7, 0.8, 0.7, 0.7, 0.7, 0.7]),},
