@@ -59,7 +59,9 @@
 
 		var stopRec = function() {
 		  // stop the media stream
-		  mediaStream.stop();
+		  mediaStream.getTracks().forEach(function(track) {
+		    track.stop();
+		  });
 
 		  // stop Recorder.js
 		  rec.stop();                
