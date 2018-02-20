@@ -8,7 +8,6 @@ import pickle
 import glob
 import utilFunctions as UF
 import scipy.spatial.distance as DS
-import matplotlib.pyplot as plt
 
 import parameters as params
 import csv
@@ -316,7 +315,7 @@ def getJawaabLive(ipAudio, ipulsePer, iTaal = "teen", strokeModels = strokeModel
         #plt.show()
     return testFeatFull, strokeSeq, strokeTime, strokeAmp, opulsePer
 
-def testModuleLive(inputFile = '../dataset/testInputs/testInput_3.wav', pulsePos = getPulsePosFromAnn('../dataset/testInputs/testInput_3.csv')):    
+def testModuleLive(inputFile = '../dataset/testInputs/testInput_3.wav', pulsePos = getPulsePosFromAnn('../dataset/testInputs/testInput_3.csv')):
     global strokeModelsG
     ipulsePer = np.median(np.diff(pulsePos))/10
     # print ipulsePer

@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 from flask import Flask, request, jsonify, current_app
-import requests
 from functools import wraps
 import sys
 import os
@@ -9,8 +8,7 @@ from flask.ext.cors import CORS
 from scipy.io.wavfile import read as wavread
 import inspect
 import sys
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../src'))
-import tablaAnalysis as anal
+from src import tablaAnalysis as anal
 
 PULSEP = 0.5
 TAAL_ID = "teen"   # 1 for teental, 2 for ektaal, 3 for rupak taal, 4 for jhap taal
@@ -24,7 +22,7 @@ clickStrokes = {'hiClick': '../dataset/hiclick.wav', 'lowClick': '../dataset/loc
 
 @app.route('/')
 def index():
-    return "tabla demo"
+    return "thing"
 
 def support_jsonp(f):
     """Wraps JSONified output for JSONP"""

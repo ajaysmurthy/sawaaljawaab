@@ -37,6 +37,8 @@
                     console.log(new Date().getTime());
                     // ask for permission and start recording
 		  	navigator.getUserMedia({audio: true}, function(localMediaStream){
+		  		console.debug('got media stream');
+		  		console.debug(localMediaStream);
 		    mediaStream = localMediaStream;
 
 		    // create a stream source to pass to Recorder.js
@@ -45,7 +47,7 @@
 		    // create new instance of Recorder.js using the mediaStreamSource
 		    rec = new Recorder(mediaStreamSource, {
 		      // pass the path to recorderWorker.js file here
-		      workerPath: '/sawaaljawaab/bower_components/recorderjs/recorderWorker.js'
+		      workerPath: '/sawaaljawaab/static/bower_components/recorderjs/recorderWorker.js'
 		    });
 
 		    // start recording
